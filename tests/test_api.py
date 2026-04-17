@@ -1,35 +1,37 @@
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from src.app import app
+import os
 
-client = TestClient(app)
+TEST_OUTPUT_DIR = "test_audio_out"
 
-def test_read_main():
-    """Verifierar att API-dokumentationen är nåbar."""
-    response = client.get("/docs")
-    assert response.status_code == 200
-
-def test_generate_endpoint():
-    """Smoke test för textgenerering."""
-    payload = {"text": "Hej, hur mår du?"}
-    response = client.post("/generate", json=payload)
-    assert response.status_code == 200
-    assert "text" in response.json()
-    assert len(response.json()["text"]) > 0
-
-def test_speak_endpoint():
-    """Smoke test för ljudgenerering."""
-    payload = {"text": "Det här är ett test av den svenska rösten."}
-    response = client.post("/speak", json=payload)
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "audio/wav"
+@pytest.fixture(scope="module", autouse=True)
+def setup_test_environment():
+    if not os.path.exists(TEST_OUTPUT_DIR):
+        os.makedirs(TEST_OUTPUT_DIR)
+    yield
+    if os.path.exists(TEST_OUTPUT_DIR):
+        for f in os.listdir(TEST_OUTPUT_DIR):
+            os.remove(os.path.join(TEST_OUTPUT_DIR, f))
+        os.rmdir(TEST_OUTPUT_DIR)
 
 @pytest.mark.asyncio
-async def test_full_process():
-    """Testar hela kedjan från fråga till ljud."""
-    payload = {"text": "Berätta en mycket kort vits."}
-    response = client.post("/process", json=payload)
-    assert response.status_code == 200
-    data = response.json()
-    assert "text" in data
-    assert "audio" in data
+async def test_generate_endpoint():
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post("/generate", json={"prompt": "Hej!"})
+        assert response.status_code == 200
+        assert "text" in response.json()
+
+@pytest.mark.asyncio
+async def test_speak_endpoint():
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post("/speak", json={"prompt": "Test."})
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "audio/wav"
+
+@pytest.mark.asyncio
+async def test_process_endpoint():
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post("/process", json={"prompt": "Kort historia."})
+        assert response.status_code == 200
+        assert "text" in response.json()

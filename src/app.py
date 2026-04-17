@@ -1,63 +1,106 @@
 import os
+import re
 import torch
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
+from pydantic import BaseModel, Field
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
 from llama_cpp import Llama
 from TTS.api import TTS
+from starlette.concurrency import run_in_threadpool
 
 # --- Konfiguration ---
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_PATH = os.path.join(BASE_DIR, "models", "Meta-Llama-3-8B-Instruct.Q5_K_M.gguf")
-OUT_DIR = os.path.join(BASE_DIR, "audio_out")
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu" # ROCm/Vulkan mappas ofta som 'cuda' i PyTorch
+LLM_MODEL_PATH = "models/Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
+OUTPUT_DIR = "audio_out"
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-app = FastAPI(title="Swedish AI Voice Server")
+if not os.path.exists("models"):
+    os.makedirs("models")
 
-# Globala variabler för modeller
-llm = None
-tts_model = None
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
 
-@app.on_event("startup")
-def load_models():
-    global llm, tts_model
-    print(f"Laddar Llama-3 på {DEVICE}...")
-    # Vi lämnar lite VRAM till XTTS genom att inte maxa n_gpu_layers om det behövs,
-    # men 12GB bör klara n_gpu_layers=-1 för en Q5-modell.
-    llm = Llama(model_path=MODEL_PATH, n_gpu_layers=-1, n_ctx=2048, verbose=False)
-    
-    print(f"Laddar XTTS-v2 på {DEVICE}...")
-    tts_model = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(DEVICE)
+app = FastAPI(title="AMD AI Voice API - Llama 3 & XTTS-v2")
 
-class ChatRequest(BaseModel):
-    text: str
-    language: str = "sv"
+# --- Initiera LLM ---
+print("Laddar Llama-3 till GPU (Vulkan)...")
+llm = Llama(
+    model_path=LLM_MODEL_PATH,
+    n_gpu_layers=-1, # Skicka allt till 6700 XT
+    n_ctx=2048,
+    verbose=False
+)
+
+# --- Initiera TTS (XTTS-v2) ---
+print(f"Laddar XTTS-v2 till {DEVICE}...")
+tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(DEVICE)
+
+class Query(BaseModel):
+    prompt: str = Field(..., example="Berätta en kort historia om en riddare.")
+
+def remove_file(path: str):
+    if os.path.exists(path):
+        os.remove(path)
+
+def clean_text_for_speech(text: str) -> str:
+    """Tar bort asterisker och andra specialtecken."""
+    text = text.replace("*", "")
+    text = re.sub(r'#+', '', text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
+def format_llama3_prompt(user_prompt: str) -> str:
+    """Formatterar enligt Llama 3 Chat Template."""
+    system_prompt = "Du är en hjälpsam assistent. Svara alltid kortfattat och på svenska."
+    return (
+        f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n"
+        f"{system_prompt}<|eot_id|>"
+        f"<|start_header_id|>user<|end_header_id|>\n\n"
+        f"{user_prompt}<|eot_id|>"
+        f"<|start_header_id|>assistant<|end_header_id|>\n\n"
+    )
 
 @app.post("/generate")
-async def generate(req: ChatRequest):
-    if not llm: raise HTTPException(503, "Modell ej laddad")
-    prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{req.text}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
-    res = llm(prompt, max_tokens=150, stop=["<|eot_id|>"])
-    return {"text": res["choices"][0]["text"].strip()}
+async def generate_text(query: Query):
+    try:
+        formatted_prompt = format_llama3_prompt(query.prompt)
+        response = await run_in_threadpool(
+            llm,
+            formatted_prompt,
+            max_tokens=256,
+            stop=["<|eot_id|>", "<|start_header_id|>"],
+            echo=False
+        )
+        return {"text": response["choices"][0]["text"].strip()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/speak")
-async def speak(req: ChatRequest):
-    output_path = os.path.join(OUT_DIR, "output.wav")
+async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
     try:
-        # XTTS behöver en referensröst. Du kan lägga en kort .wav i models/ för att klona.
-        # Här använder vi en inbyggd röst som fallback.
-        tts_model.tts_to_file(
-            text=req.text,
-            speaker="Ana Paula 80", # En bra standardröst, byt gärna till egen .wav
-            language=req.language,
-            file_path=output_path
+        file_name = "speech_output.wav"
+        file_path = os.path.join(OUTPUT_DIR, file_name)
+        cleaned_text = clean_text_for_speech(query.prompt)
+
+        await run_in_threadpool(
+            tts.tts_to_file,
+            text=cleaned_text,
+            speaker="Daisy",
+            language="sv",
+            file_path=file_path
         )
-        return FileResponse(output_path, media_type="audio/wav")
+        background_tasks.add_task(remove_file, file_path)
+        return FileResponse(file_path, media_type="audio/wav")
     except Exception as e:
-        raise HTTPException(500, f"TTS-fel: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/process")
-async def process(req: ChatRequest):
-    text_res = await generate(req)
-    audio_res = await speak(ChatRequest(text=text_res["text"]))
-    return {"text": text_res["text"], "audio": "/audio_out/output.wav"}
+async def full_process(query: Query):
+    res = await generate_text(query)
+    return {
+        "text": res["text"],
+        "audio_url": "/speak"
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("src.app:app", host="0.0.0.0", port=8000, reload=True)
