@@ -3,7 +3,7 @@ name = "api-local-tts-server"
 version = "0.1.0"
 description = "Lokal AI-server med Llama-3 och XTTS-v2 för AMD GPU"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.110.0",
     "uvicorn>=0.29.0",
@@ -14,8 +14,8 @@ dependencies = [
     "numpy<2.0.0",
 ]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest>=8.0.0",
     "httpx>=0.27.0",
     "ruff>=0.3.0",
