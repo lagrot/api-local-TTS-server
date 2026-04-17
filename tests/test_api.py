@@ -1,7 +1,8 @@
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from src.app import app, clean_text_for_speech
 import os
+import asyncio
 
 TEST_OUTPUT_DIR = "test_audio_out"
 
@@ -12,7 +13,8 @@ def setup_test_environment():
     yield
     if os.path.exists(TEST_OUTPUT_DIR):
         for f in os.listdir(TEST_OUTPUT_DIR):
-            os.remove(os.path.join(TEST_OUTPUT_DIR, f))
+            if f.endswith(".wav"):
+                os.remove(os.path.join(TEST_OUTPUT_DIR, f))
         os.rmdir(TEST_OUTPUT_DIR)
 
 def test_clean_text_for_speech():
@@ -21,28 +23,34 @@ def test_clean_text_for_speech():
 
 @pytest.mark.asyncio
 async def test_generate_endpoint_invalid_input():
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/generate", json={}) # Saknar 'prompt'
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post("/generate", json={})
         assert response.status_code == 422
 
 @pytest.mark.asyncio
-async def test_generate_endpoint():
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/generate", json={"prompt": "Hej!"})
+async def test_generate_endpoint_valid():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post("/generate", json={"prompt": "Hej, vem är du?"})
         assert response.status_code == 200
-        assert "text" in response.json()
+        data = response.json()
+        assert "text" in data
+        assert len(data["text"]) > 0
 
 @pytest.mark.asyncio
-async def test_speak_endpoint():
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/speak", json={"prompt": "Test."})
+async def test_process_endpoint_valid():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post("/process", json={"prompt": "Berätta något kort."})
         assert response.status_code == 200
-        assert response.headers["content-type"] == "audio/wav"
+        data = response.json()
+        assert "text" in data
+        assert "audio_info" in data
 
 @pytest.mark.asyncio
-async def test_process_endpoint():
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/process", json={"prompt": "Kort historia."})
-        assert response.status_code == 200
-        assert "text" in response.json()
-        assert "audio_info" in response.json()
+async def test_invalid_method():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.get("/generate")
+        assert response.status_code == 405

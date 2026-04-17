@@ -36,11 +36,15 @@ llm = Llama(
 )
 
 # --- Initiera TTS (XTTS-v2) ---
-print(f"Laddar XTTS-v2 till {DEVICE}...")
-tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(DEVICE)
+def get_tts():
+    print(f"Laddar XTTS-v2 till {DEVICE}...")
+    return TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(DEVICE)
+
+# tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(DEVICE)
+tts = None
 
 class Query(BaseModel):
-    prompt: str = Field(..., example="Berätta en kort historia om en riddare.")
+    prompt: str = Field(..., json_schema_extra={"example": "Berätta en kort historia om en riddare."})
 
 def remove_file(path: str):
     if os.path.exists(path):
@@ -57,7 +61,7 @@ def format_llama3_prompt(user_prompt: str) -> str:
     """Formatterar enligt Llama 3 Chat Template."""
     system_prompt = "Du är en hjälpsam assistent. Svara alltid kortfattat och på svenska."
     return (
-        f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n"
+        f"<|start_header_id|>system<|end_header_id|>\n\n"
         f"{system_prompt}<|eot_id|>"
         f"<|start_header_id|>user<|end_header_id|>\n\n"
         f"{user_prompt}<|eot_id|>"
@@ -81,6 +85,9 @@ async def generate_text(query: Query):
 
 @app.post("/speak")
 async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
+    global tts
+    if tts is None:
+        tts = get_tts()
     try:
         file_id = str(uuid.uuid4())
         file_name = f"speech_{file_id}.wav"
