@@ -4,7 +4,7 @@ Lokal AI-server med Llama-3 och XTTS-v2 för AMD GPU (Vulkan/ROCm) på WSL2.
 ## Struktur
 ```text
 .
-├── pyproject.toml      # Beroenden (uv) och ruff-inställningar
+├── pyproject.toml      # Beroenden (uv), ruff- och pytest-inställningar
 ├── models/             # Lägg din .gguf-modell här
 ├── src/
 │   └── app.py          # FastAPI-applikation (LLM + TTS)
@@ -50,14 +50,15 @@ uv run uvicorn src.app:app --host 0.0.0.0 --port 8000 --reload
 - `POST /speak`: Tar text och returnerar en `.wav`-fil (XTTS-v2).
 - `POST /process`: Kombinerad endpoint (Fråga -> Text -> Ljud).
 
-## Tester
+## Utveckling och Kvalitetssäkring
 
-Kör rök-tester för att se att allt fungerar:
+### Tester
+Kör test-sviten:
 ```bash
-uv run pytest tests/
+uv run pytest
 ```
 
-## Linting
+### Linting
 ```bash
 uv run ruff check . --fix
 ```
