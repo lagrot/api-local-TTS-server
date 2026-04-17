@@ -1,13 +1,14 @@
 import os
 import re
 import uuid
+
 import torch
-from fastapi import FastAPI, HTTPException, BackgroundTasks
-from pydantic import BaseModel, Field
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from llama_cpp import Llama
-from TTS.api import TTS
+from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
+from TTS.api import TTS
 
 # --- Konfiguration ---
 LLM_MODEL_PATH = "models/Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
@@ -110,8 +111,6 @@ async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
 async def full_process(query: Query):
     res = await generate_text(query)
     # Rensa texten innan TTS
-    cleaned_text = clean_text_for_speech(res["text"])
-    
     # Notera: Här behöver vi simulera eller hantera hur ljudfilen returneras/hämtas
     # För enkelhetens skull, returnerar vi texten och indikerar att tal genereras
     return {
