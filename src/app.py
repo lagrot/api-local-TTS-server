@@ -82,7 +82,8 @@ async def generate_text(query: Query):
 @app.post("/speak")
 async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
     try:
-        file_name = "speech_output.wav"
+        file_id = str(uuid.uuid4())
+        file_name = f"speech_{file_id}.wav"
         file_path = os.path.join(OUTPUT_DIR, file_name)
         cleaned_text = clean_text_for_speech(query.prompt)
 
@@ -101,9 +102,14 @@ async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
 @app.post("/process")
 async def full_process(query: Query):
     res = await generate_text(query)
+    # Rensa texten innan TTS
+    cleaned_text = clean_text_for_speech(res["text"])
+    
+    # Notera: Här behöver vi simulera eller hantera hur ljudfilen returneras/hämtas
+    # För enkelhetens skull, returnerar vi texten och indikerar att tal genereras
     return {
         "text": res["text"],
-        "audio_url": "/speak"
+        "audio_info": "Använd /speak med den renade texten för att få ljudfilen"
     }
 
 if __name__ == "__main__":
