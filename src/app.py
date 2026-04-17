@@ -82,8 +82,8 @@ async def generate_text(query: Query):
 @app.post("/speak")
 async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
     try:
-        file_name = f"{uuid.uuid4()}.wav"
-        file_path = os.path.join(app.state.output_dir, file_name)
+        file_name = "speech_output.wav"
+        file_path = os.path.join(OUTPUT_DIR, file_name)
         cleaned_text = clean_text_for_speech(query.prompt)
 
         await run_in_threadpool(
