@@ -1,5 +1,6 @@
 import os
 import re
+import uuid
 import torch
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
@@ -20,6 +21,10 @@ if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
 
 app = FastAPI(title="AMD AI Voice API - Llama 3 & XTTS-v2")
+app.state.output_dir = OUTPUT_DIR
+
+if not os.path.exists(LLM_MODEL_PATH):
+    print(f"Warning: Model not found at {LLM_MODEL_PATH}. Ensure the file exists in the models/ directory.")
 
 # --- Initiera LLM ---
 print("Laddar Llama-3 till GPU (Vulkan)...")
