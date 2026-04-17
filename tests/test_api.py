@@ -1,6 +1,6 @@
 import pytest
 from httpx import AsyncClient
-from src.app import app
+from src.app import app, clean_text_for_speech
 import os
 
 TEST_OUTPUT_DIR = "test_audio_out"
@@ -14,6 +14,16 @@ def setup_test_environment():
         for f in os.listdir(TEST_OUTPUT_DIR):
             os.remove(os.path.join(TEST_OUTPUT_DIR, f))
         os.rmdir(TEST_OUTPUT_DIR)
+
+def test_clean_text_for_speech():
+    assert clean_text_for_speech("*Hej* #världen#") == "Hej världen"
+    assert clean_text_for_speech("  extra   mellanslag  ") == "extra mellanslag"
+
+@pytest.mark.asyncio
+async def test_generate_endpoint_invalid_input():
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post("/generate", json={}) # Saknar 'prompt'
+        assert response.status_code == 422
 
 @pytest.mark.asyncio
 async def test_generate_endpoint():
@@ -35,3 +45,4 @@ async def test_process_endpoint():
         response = await client.post("/process", json={"prompt": "Kort historia."})
         assert response.status_code == 200
         assert "text" in response.json()
+        assert "audio_info" in response.json()
