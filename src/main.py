@@ -1,11 +1,12 @@
 import torch
-import io
-import subprocess
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from src.tts_engine import MMSLoader
 import scipy.io.wavfile as wavfile
+import io
+import subprocess
+import os
 
 app = FastAPI()
 loader = MMSLoader()
@@ -20,24 +21,24 @@ async def health():
 @app.post("/tts")
 async def tts(request: TTSRequest):
     try:
-        inputs = loader.tokenizer(request.text, return_tensors="pt")
+        inputs = loader.tokenizer(request.text, return_tensors="pt").to(loader.device)
         with torch.no_grad():
             output = loader.model(**inputs)
         
-        audio = output.waveform[0].numpy()
+        audio = output.waveform[0].cpu().numpy()
         
-        # Spara till RAM-buffer
+        # Skapa WAV i RAM
         wav_buffer = io.BytesIO()
         wavfile.write(wav_buffer, loader.model.config.sampling_rate, audio)
         wav_buffer.seek(0)
         
-        # Konvertera till högkvalitativ MP3 med FFmpeg-filter för radio-feeling
+        # Konvertera till MP3 med ffmpeg
         process = subprocess.Popen(
             [
                 'ffmpeg', '-y', '-i', 'pipe:0', 
                 '-f', 'mp3', 
-                '-ab', '320k',              # Max bitrate
-                '-ar', '48000',             # 48kHz (TV-standard)
+                '-ab', '320k',
+                '-ar', '48000',
                 '-af', 'aresample=48000:resampler=soxr,compand=attacks=0.01:points=-80/-900|-45/-15|-27/-9|0/-7|20/-5:gain=6', 
                 'pipe:1'
             ],
