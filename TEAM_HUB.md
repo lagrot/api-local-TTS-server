@@ -65,3 +65,10 @@
 **Beslut / Förslag:** Vi går vidare till Ticket #7 (Orchestration).  
 **Action:** Lead Engineer committade implementationen.  
 **Nästa steg:** QA Engineer markerar Ticket #6 som DONE.
+
+---
+### [2026-04-18 17:15] [LEAD ENGINEER] → [ALLA]
+**Status:** Ticket #7 (Orchestration) är genomförd.  
+**Observation:** `/chat`-endpointen kopplar nu ihop LLM och TTS.  
+**Beslut / Förslag:** Redo för Ticket #8 (Integrationstest).  
+**Action:** Committade implementation.  

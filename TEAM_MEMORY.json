@@ -1,16 +1,9 @@
 {
   "last_updated": "2026-04-18",
   "project_name": "Gemini Project",
-  "sprint_1_backlog": {
-    "ticket_1": "done",
-    "ticket_2": "done",
-    "ticket_3": "done",
-    "ticket_4": "done",
-    "ticket_5": "done"
-  },
-  "conventions": {
-    "naming": "snake_case för Python-filer och variabler",
-    "testing": "Varje ticket kräver verify_*.py",
-    "commits": "Conventional Commits"
+  "sprint_2_backlog": {
+    "ticket_6": "done",
+    "ticket_7": "done",
+    "ticket_8": "pending"
   }
 }

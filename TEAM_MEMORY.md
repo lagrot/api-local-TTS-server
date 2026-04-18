@@ -34,3 +34,7 @@
 1. Kod commitad med konventionell commit-message.
 2. `verify_*.py` testexekvering är grön.
 3. QA Engineer har verifierat funktionaliteten.
+
+## Godkända Ändringar
+- 2026-04-18 [LEAD ENGINEER] – Implementerad /chat-endpoint (Orchestration).
+
