@@ -23,6 +23,10 @@ class TTSRequest(BaseModel):
 async def health():
     return {"status": "ok"}
 
+@app.post("/tts")
+async def tts(request: TTSRequest):
+    return await generate_audio(request.text)
+
 @app.post("/tts_direct")
 async def tts_direct(request: TTSRequest):
     return await generate_audio(request.text)
