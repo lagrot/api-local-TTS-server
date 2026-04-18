@@ -10,6 +10,13 @@ from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 from TTS.api import TTS
 
+# --- Setup Environment for ROCm/Coqui ---
+# Agree to Coqui license automatically to prevent terminal hang
+os.environ["COQUI_TOS_AGREED"] = "1"
+# Override for RX 6700 XT (Navi 22 / gfx1031) if needed by ROCm
+if "HSA_OVERRIDE_GFX_VERSION" not in os.environ:
+    os.environ["HSA_OVERRIDE_GFX_VERSION"] = "10.3.0"
+
 # --- Setup Logging ---
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("amd-ai-api")
@@ -18,13 +25,20 @@ logger = logging.getLogger("amd-ai-api")
 LLM_MODEL_PATH = "models/Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
 OUTPUT_DIR = "audio_out"
 
-# Check for ROCm/CUDA
-if torch.cuda.is_available():
-    DEVICE = "cuda"
-    logger.info(f"GPU Detected: {torch.cuda.get_device_name(0)}")
+# Better GPU Detection
+def get_device_info():
+    available = torch.cuda.is_available()
+    device_name = torch.cuda.get_device_name(0) if available else "None"
+    hip_version = getattr(torch.version, 'hip', 'N/A')
+    return available, device_name, hip_version
+
+GPU_AVAILABLE, DEVICE_NAME, HIP_VERSION = get_device_info()
+DEVICE = "cuda" if GPU_AVAILABLE else "cpu"
+
+if GPU_AVAILABLE:
+    logger.info(f"AMD GPU Detected via ROCm: {DEVICE_NAME} (HIP: {HIP_VERSION})")
 else:
-    DEVICE = "cpu"
-    logger.warning("No GPU detected, falling back to CPU. Performance will be slow.")
+    logger.warning("No AMD GPU detected via PyTorch ROCm backend. Using CPU.")
 
 # Ensure directories exist
 os.makedirs("models", exist_ok=True)
@@ -47,9 +61,10 @@ def init_llm():
     
     try:
         logger.info(f"Loading Llama-3 from {LLM_MODEL_PATH}...")
+        # If GPU_AVAILABLE is false, n_gpu_layers=-1 will still work but use CPU if backend is missing
         return Llama(
             model_path=LLM_MODEL_PATH,
-            n_gpu_layers=-1,  # Offload all layers to GPU (6700 XT has 12GB VRAM)
+            n_gpu_layers=-1, 
             n_ctx=2048,
             verbose=False
         )
@@ -79,14 +94,12 @@ def remove_file(path: str):
         os.remove(path)
 
 def clean_text_for_speech(text: str) -> str:
-    """Removes markdown artifacts and extra spaces."""
     text = text.replace("*", "")
     text = re.sub(r'#+', '', text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
 def format_llama3_prompt(user_prompt: str) -> str:
-    """Formats using Llama 3 Chat Template."""
     system_prompt = "Du är en hjälpsam assistent. Svara alltid kortfattat och på svenska."
     return (
         f"<|start_header_id|>system<|end_header_id|>\n\n"
@@ -98,12 +111,15 @@ def format_llama3_prompt(user_prompt: str) -> str:
 
 @app.get("/health")
 async def health_check():
+    gpu_ok, dev_name, hip_ver = get_device_info()
     return {
         "status": "online",
-        "gpu_available": torch.cuda.is_available(),
-        "gpu_device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None",
+        "gpu_available": gpu_ok,
+        "gpu_device": dev_name,
+        "hip_version": hip_ver,
         "llm_loaded": llm is not None,
-        "tts_loaded": tts is not None
+        "tts_loaded": tts is not None,
+        "os_env_gfx": os.environ.get("HSA_OVERRIDE_GFX_VERSION", "Not Set")
     }
 
 @app.get("/speakers")
@@ -157,11 +173,9 @@ async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
 
 @app.post("/process")
 async def full_process(query: Query, background_tasks: BackgroundTasks):
-    # 1. Generate Text
     gen_res = await generate_text(query)
     text_response = gen_res["text"]
     
-    # 2. Generate Speech from generated text
     tts_model = get_tts()
     file_id = str(uuid.uuid4())
     file_path = os.path.join(OUTPUT_DIR, f"full_{file_id}.wav")
@@ -176,7 +190,6 @@ async def full_process(query: Query, background_tasks: BackgroundTasks):
     
     background_tasks.add_task(remove_file, file_path)
     
-    # Return audio file and include the text in a custom header
     return FileResponse(
         file_path, 
         media_type="audio/wav", 
