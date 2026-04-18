@@ -2,7 +2,7 @@ import torch
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from src.tts_engine import MMSLoader
+from src.tts_engine import TTSLoaderFactory
 from src.llm_engine import OllamaClient
 import scipy.io.wavfile as wavfile
 import io
@@ -10,7 +10,9 @@ import subprocess
 import os
 
 app = FastAPI()
-loader = MMSLoader()
+# Default to mms, can be changed via environment variable
+model_type = os.getenv("TTS_MODEL_TYPE", "mms")
+loader = TTSLoaderFactory.get_loader(model_type)
 llm = OllamaClient()
 
 class ChatRequest(BaseModel):
@@ -38,14 +40,16 @@ async def chat(request: ChatRequest):
 
 async def generate_audio(text: str):
     try:
-        inputs = loader.tokenizer(text, return_tensors="pt").to(loader.device)
-        with torch.no_grad():
-            output = loader.model(**inputs)
+        audio = loader.generate(text)
         
-        audio = output.waveform[0].cpu().numpy()
+        # Normalize to int16 if necessary
+        if audio.dtype == 'float32':
+            audio = (audio * 32767).astype('int16')
         
         wav_buffer = io.BytesIO()
-        wavfile.write(wav_buffer, loader.model.config.sampling_rate, audio)
+        # For MMS: sampling_rate is model.config.sampling_rate. For Silero: 48000
+        sr = 16000 if model_type == "mms" else 48000
+        wavfile.write(wav_buffer, sr, audio)
         wav_buffer.seek(0)
         
         process = subprocess.Popen(
@@ -53,15 +57,10 @@ async def generate_audio(text: str):
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         
-        # Write input to ffmpeg in a thread or non-blocking way if possible, 
-        # but for now keep it simple and stream output.
         def stream_generator():
             try:
-                # Write initial data to stdin
                 process.stdin.write(wav_buffer.read())
                 process.stdin.close()
-                
-                # Stream output chunks
                 while True:
                     chunk = process.stdout.read(4096)
                     if not chunk:

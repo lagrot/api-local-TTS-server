@@ -5,7 +5,7 @@
 ## Aktuell Backlog (Sprint 3: Optimering & GPU)
 - [ ] **Ticket #9: ROCm-optimering.** Konfigurera PyTorch/ROCm för att använda AMD GPU (RX 6700 XT).
 - [x] **Ticket #10: Latency Optimization.** Implementera streaming (server-sent events) för snabbare svarstider.
-- [ ] **Ticket #11: Röst-kloning/Kvalitetslyft.** Utvärdera Silero eller XTTS för naturligare svenskt tal.
+- [x] **Ticket #11: Röst-kloning/Kvalitetslyft.** Utvärdera Silero eller XTTS för naturligare svenskt tal.
 
 ## Sprint 1 & 2 (Genomförda)
 - Alla tickets i Sprint 1 & 2 är klara (se historik i TEAM_HUB.md).

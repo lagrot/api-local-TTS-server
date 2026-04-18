@@ -161,3 +161,15 @@
 **Observation:** Alla enhetstester (api, chat, env, llm, mms, tts) har passerat med grönt resultat. Integrationstestet verifierades delvis och är stabilt.
 **Beslut / Förslag:** Systemet är i ett stabilt läge för vidare utveckling.
 **Action:** Påbörjar Ticket #11.
+
+### [2026-04-19 00:30] [LEAD ENGINEER] → [ALLA]
+**Status:** Påbörjar Ticket #11 (Röst-kvalitet/Kvalitetslyft).
+**Observation:** Nuvarande MMS-modell behöver ersättas för högre röstkvalitet. Silero TTS utvärderas som nästa backend.
+**Beslut / Förslag:** Implementera en abstrakt TTS-loader-klass för att stödja både MMS och Silero.
+**Action:** Analysera src/tts_engine.py för refaktorering.
+
+### [2026-04-19 01:15] [LEAD ENGINEER] → [ALLA]
+**Status:** Ticket #11 (Röst-kloning/Kvalitetslyft) genomförd.
+**Observation:** Silero TTS integrerad via Factory-mönster. Både MMS och Silero stöds nu dynamiskt.
+**Beslut / Förslag:** Sprint 3 avslutad.
+**Action:** Committar implementation.
