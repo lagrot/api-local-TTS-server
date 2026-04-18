@@ -8,9 +8,9 @@ mkdir -p .tmp models audio_out
 export TMPDIR=$(pwd)/.tmp
 
 # Find ROCm libraries (e.g. from Ollama or system)
-ROCM_PATH=$(find /usr/local/lib/ollama/rocm -name "libamdhip64.so*" -exec dirname {} \; | head -n 1)
+ROCM_PATH=$(find /usr/local/lib/ollama/rocm -name "libamdhip64.so*" -exec dirname {} 2>/dev/null \; | head -n 1)
 if [ -z "$ROCM_PATH" ]; then
-    ROCM_PATH=$(find /opt/rocm -name "libamdhip64.so*" -exec dirname {} \; | head -n 1)
+    ROCM_PATH=$(find /opt/rocm -name "libamdhip64.so*" -exec dirname {} 2>/dev/null \; | head -n 1)
 fi
 
 if [ ! -z "$ROCM_PATH" ]; then
@@ -23,22 +23,25 @@ fi
 
 if [ ! -d ".venv" ]; then
     echo "Creating virtual environment..."
-    uv venv
+    uv venv --python 3.10
 fi
 
-# 2. Sync all dependencies using the locked ROCm source in pyproject.toml
+# 2. Sync dependencies with forced ROCm index
 echo "Syncing dependencies with ROCm 6.1 index..."
-uv sync --index rocm
+uv sync --index rocm --no-cache
 
-# 3. Compile llama-cpp-python with ROCm (HIPBLAS) support
-# This needs to be re-installed explicitly to ensure it links to our HIP libs
+# 3. Explicitly ensure llama-cpp-python is using HIPBLAS
+# Re-install with CMAKE_ARGS to make sure it links correctly
 echo "Re-compiling llama-cpp-python with HIPBLAS support..."
 export CMAKE_ARGS="-DLLAMA_HIPBLAS=on"
 uv pip install llama-cpp-python --force-reinstall --upgrade --no-cache-dir
 
-# 4. Verification Check
+# 4. Final Verification Check
 echo "--- Verifying Installation ---"
 source .venv/bin/activate
+# Pass variables again to ensure python script sees them
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROCM_PATH
+export HSA_OVERRIDE_GFX_VERSION=10.3.0
 python3 -c "import torch; print(f'Torch: {torch.__version__}'); print(f'HIP Backend: {getattr(torch.version, \"hip\", \"MISSING\")}'); print(f'GPU Available: {torch.cuda.is_available()}')"
 
 if [ ! -f "models/Meta-Llama-3-8B-Instruct.Q5_K_M.gguf" ]; then
