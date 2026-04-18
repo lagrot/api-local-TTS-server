@@ -8,7 +8,7 @@ def generate_audio(text: str, output_path: str, bitrate: str = "128k"):
     """Genererar ljud via installerad piper och kodar till MP3."""
     # Använd 'piper' direkt (nu installerad i venv/bin)
     # Vi pekar ut modellen explicit
-    piper_cmd = ["piper", "--model", "models/piper/sv_SE-nst-medium.onnx", "--output-raw"]
+    piper_cmd = [".venv/bin/piper", "--model", "models/piper/sv_SE-nst-medium.onnx", "--output-raw"]
     
     try:
         # 1. Piper körs
