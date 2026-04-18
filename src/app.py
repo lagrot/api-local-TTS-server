@@ -1,6 +1,7 @@
 import os
 import re
 import uuid
+import sys
 import torch
 import logging
 from fastapi import BackgroundTasks, FastAPI, HTTPException
@@ -10,12 +11,31 @@ from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 from TTS.api import TTS
 
-# --- Setup Environment for ROCm/Coqui ---
-# Agree to Coqui license automatically to prevent terminal hang
+# --- "Ollama Bridge" ROCm Logic ---
+def setup_rocm_environment():
+    potential_rocm_paths = [
+        "/usr/local/lib/ollama/rocm",
+        "/opt/rocm/lib",
+        "/usr/lib/x86_64-linux-gnu",
+        "/usr/local/lib"
+    ]
+    
+    rocm_found_path = None
+    for path in potential_rocm_paths:
+        if os.path.exists(path) and any("libamdhip64.so" in f for f in os.listdir(path)):
+            rocm_found_path = path
+            break
+            
+    if rocm_found_path:
+        os.environ["LD_LIBRARY_PATH"] = f"{rocm_found_path}:{os.environ.get('LD_LIBRARY_PATH', '')}"
+        os.environ["HSA_OVERRIDE_GFX_VERSION"] = "10.3.0"
+        return True, rocm_found_path
+    return False, None
+
+ROCM_OK, ROCM_PATH = setup_rocm_environment()
+
+# --- Setup Environment for Coqui ---
 os.environ["COQUI_TOS_AGREED"] = "1"
-# Override for RX 6700 XT (Navi 22 / gfx1031) if needed by ROCm
-if "HSA_OVERRIDE_GFX_VERSION" not in os.environ:
-    os.environ["HSA_OVERRIDE_GFX_VERSION"] = "10.3.0"
 
 # --- Setup Logging ---
 logging.basicConfig(level=logging.INFO)
@@ -39,6 +59,8 @@ if GPU_AVAILABLE:
     logger.info(f"AMD GPU Detected via ROCm: {DEVICE_NAME} (HIP: {HIP_VERSION})")
 else:
     logger.warning("No AMD GPU detected via PyTorch ROCm backend. Using CPU.")
+    if ROCM_PATH:
+        logger.info(f"Ollama ROCm path found at {ROCM_PATH}, but PyTorch is not picking it up. Ensure 'uv sync --index rocm' was run.")
 
 # Ensure directories exist
 os.makedirs("models", exist_ok=True)
@@ -61,7 +83,6 @@ def init_llm():
     
     try:
         logger.info(f"Loading Llama-3 from {LLM_MODEL_PATH}...")
-        # If GPU_AVAILABLE is false, n_gpu_layers=-1 will still work but use CPU if backend is missing
         return Llama(
             model_path=LLM_MODEL_PATH,
             n_gpu_layers=-1, 
@@ -77,7 +98,6 @@ def get_tts():
     if tts is None:
         logger.info(f"Loading XTTS-v2 to {DEVICE}...")
         try:
-            # XTTS-v2 model will download automatically on first run if not present
             tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(DEVICE)
         except Exception as e:
             logger.error(f"Failed to load TTS: {e}")
@@ -119,6 +139,7 @@ async def health_check():
         "hip_version": hip_ver,
         "llm_loaded": llm is not None,
         "tts_loaded": tts is not None,
+        "rocm_path": ROCM_PATH,
         "os_env_gfx": os.environ.get("HSA_OVERRIDE_GFX_VERSION", "Not Set")
     }
 
