@@ -26,26 +26,21 @@ if [ ! -d ".venv" ]; then
     uv venv
 fi
 
-# 2. Install PyTorch ROCm 6.1 (Latest stable compatible with Ubuntu 24.04)
-echo "Installing PyTorch with ROCm support using uv..."
-uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.1 --force-reinstall
+# 2. Sync all dependencies using the locked ROCm source in pyproject.toml
+echo "Syncing dependencies with ROCm 6.1 index..."
+uv sync --index rocm
 
-# 3. Install build tools needed for llama-cpp-python
-echo "Checking for build tools..."
-if ! command -v cmake &> /dev/null; then
-    uv pip install cmake
-fi
-
-# 4. Compile llama-cpp-python with ROCm (HIPBLAS) support
-echo "Compiling llama-cpp-python with HIPBLAS support..."
+# 3. Compile llama-cpp-python with ROCm (HIPBLAS) support
+# This needs to be re-installed explicitly to ensure it links to our HIP libs
+echo "Re-compiling llama-cpp-python with HIPBLAS support..."
 export CMAKE_ARGS="-DLLAMA_HIPBLAS=on"
 uv pip install llama-cpp-python --force-reinstall --upgrade --no-cache-dir
 
-# 5. Sync dependencies
-echo "Syncing other dependencies..."
-uv sync
+# 4. Verification Check
+echo "--- Verifying Installation ---"
+source .venv/bin/activate
+python3 -c "import torch; print(f'Torch: {torch.__version__}'); print(f'HIP Backend: {getattr(torch.version, \"hip\", \"MISSING\")}'); print(f'GPU Available: {torch.cuda.is_available()}')"
 
-# 6. Final Model Check
 if [ ! -f "models/Meta-Llama-3-8B-Instruct.Q5_K_M.gguf" ]; then
     echo "Warning: Llama-3 model file not found in models/."
 else
