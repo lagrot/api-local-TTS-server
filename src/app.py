@@ -38,6 +38,7 @@ tts = None
 
 class Query(BaseModel):
     prompt: str = Field(..., json_schema_extra={"example": "Berätta en kort historia om en riddare."})
+    speaker: str = Field("Daisy", description="Namnet på rösten som ska användas (t.ex. Daisy, Viktor, Ana).")
 
 def init_llm():
     if not os.path.exists(LLM_MODEL_PATH):
@@ -105,6 +106,15 @@ async def health_check():
         "tts_loaded": tts is not None
     }
 
+@app.get("/speakers")
+async def list_speakers():
+    tts_model = get_tts()
+    try:
+        return {"speakers": tts_model.speakers}
+    except Exception as e:
+        logger.error(f"Failed to list speakers: {e}")
+        raise HTTPException(status_code=500, detail="Could not retrieve speaker list")
+
 @app.post("/generate")
 async def generate_text(query: Query):
     if llm is None:
@@ -135,7 +145,7 @@ async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
         await run_in_threadpool(
             tts_model.tts_to_file,
             text=cleaned_text,
-            speaker="Daisy",
+            speaker=query.speaker,
             language="sv",
             file_path=file_path
         )
@@ -143,7 +153,7 @@ async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
         return FileResponse(file_path, media_type="audio/wav")
     except Exception as e:
         logger.error(f"TTS error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=400, detail=f"TTS error: {str(e)}. Tip: Check /speakers for valid names.")
 
 @app.post("/process")
 async def full_process(query: Query, background_tasks: BackgroundTasks):
@@ -159,7 +169,7 @@ async def full_process(query: Query, background_tasks: BackgroundTasks):
     await run_in_threadpool(
         tts_model.tts_to_file,
         text=clean_text_for_speech(text_response),
-        speaker="Daisy",
+        speaker=query.speaker,
         language="sv",
         file_path=file_path
     )
