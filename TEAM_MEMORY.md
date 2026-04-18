@@ -3,7 +3,7 @@
 **Senast uppdaterad:** 2026-04-18
 
 ## Aktuell Backlog (Sprint 2)
-- [ ] **Ticket #6: Ollama-klient.** Implementera modul för Ollama-kommunikation.
+- [x] **Ticket #6: Ollama-klient.** Implementera modul för Ollama-kommunikation.
 - [ ] **Ticket #7: Orchestration.** Skapa `/chat`-endpoint som kedjar LLM + TTS.
 - [ ] **Ticket #8: Integrationstest.** Validera hela "röst-samtals-kedjan".
 
@@ -15,14 +15,20 @@
 ## Viktiga Fakta & Konventioner
 - Namngivning: snake_case för Python-filer och variabler.
 - Testning: Varje ticket kräver ett `tests/verify_*.py`.
+- Commits: Conventional Commits.
 - GitOps: Alla ändringar commitas direkt.
 
 ## Lärdomar & Gotchas
-- Använd `ffmpeg` för ljudkonvertering (MP3) då `pydub`/`audioop` är inkompatibelt med Python 3.13.
-- `pytest.ini` med `pythonpath = .` löser import-problem.
+- [2026-04-18] Python 3.13 saknar `audioop` (inbyggt), vilket bryter `pydub`. Använd `ffmpeg`.
+- [2026-04-18] `pytest.ini` med `pythonpath = .` löser import-problem.
+- [2026-04-18] Ollama modellnamn måste matcha exakt enligt `http://localhost:11434/api/tags`.
 
 ## Godkända Ändringar
-- 2026-04-18 [SCRUM MASTER] – Sprint 2 backlog och planering.
+- 2026-04-18 [SCRUM MASTER] – Initialt repository, setup och dokumentation.
+- 2026-04-18 [LEAD ENGINEER] – Implementerad MMSLoader och tillhörande QA-test.
+- 2026-04-18 [LEAD ENGINEER] – Implementerat FastAPI-skelett och hälso-test.
+- 2026-04-18 [LEAD ENGINEER] – Implementerad /tts-endpoint och QA-verifiering.
+- 2026-04-18 [LEAD ENGINEER] – Implementerad OllamaClient.
 
 ## Definition of Done (DoD)
 1. Kod commitad med konventionell commit-message.
