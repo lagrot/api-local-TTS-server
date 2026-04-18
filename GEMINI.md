@@ -1,54 +1,22 @@
 # GEMINI.md - Core Mandates
 
-## ⚠️ AUTOMATIC EXECUTION REQUIRED
-These are not guidelines. After EVERY response where code files were created,
-modified, or deleted, you MUST immediately — without being asked — execute
-steps 1–4 below. Do not summarize, do not ask for permission, just do it.
+## 1. Operational Protocol
+- **GitOps First**: ALLA ändringar i filsystemet SKALL commitas omedelbart efter att de verifierats. Ingen ocommittad kod tillåts.
+- **Autonomous Execution**: Agenter agerar proaktivt för att lösa problem men MÅSTE följa git-spårbarhet.
+- **OS Isolation**: STRENGT FÖRBJUDET att ändra `/etc/` eller systemfiler. Allt sker i projektkatalogen.
+- **Stand-up Requirement**: Efter varje ticket genomförs en kritisk team-stand-up (själv-reflektion).
 
----
+## 2. Development Lifecycle Automation
+Efter VARJE ändring av filer (skapa/ändra/radera):
 
-## Development Lifecycle Automation
+1. **Review**: Granska för syntax, hemligheter, hårda sökvägar, stil.
+2. **Stage & Commit**:
+   - `git add .`
+   - `git commit -m "[#Ticket] Beskrivning"`
+3. **Verify**: QA kör `tests/` och rapporterar status.
+4. **Report**: Summera ändringar.
 
-After every code change, execute the following steps in order:
-
-### 1. Code Review
-Before staging, analyze all modified files for:
-- Syntax errors and obvious bugs
-- Hardcoded secrets, API keys, or credentials (block commit if found)
-- **Absolute local paths containing usernames** (replace with `<PATH_TO_PROJECT>` or similar placeholders)
-- Unused imports or dead code
-- Adherence to existing code style in the project
-- If tests exist, verify they are not broken by the change
-
-If critical issues are found, **stop and report** — do not proceed to commit.
-
-### 2. Stage & Commit
-- Stage all modified and new files, excluding: `.env`, `node_modules/`, build artifacts
-- Write a commit message following Conventional Commits:
-  - `feat:` new feature
-  - `fix:` bug fix
-  - `chore:` maintenance / tooling
-  - `docs:` documentation only
-  - `refactor:` code restructure without behavior change
-- Keep the subject line under 72 characters
-- Add a body if the change needs explanation
-
-### 3. Push
-- Push to `origin` on the **current branch**
-- Never force-push
-- Never push directly to `main` or `master` — warn the user instead
-
-### 4. Report & Notify
-After pushing, briefly summarize:
-- What was changed
-- The commit message used
-- The branch pushed to
-
-Finally, send a concise summary of the work and notification of availability for new tasks to Slack.
-
----
-
-## Self-Check (run after every response)
-- [ ] Did I modify any code files?
-- [ ] If yes: did I run the review → commit → push pipeline?
-- [ ] If no: explain why (e.g. commit was blocked due to a critical issue)
+## 3. TDD Protocol
+- Varje ticket KRÄVER ett test i `tests/`.
+- Ticketen är inte DONE förrän `verify_*.py` är grön.
+- Om ett test misslyckas: RCA (Root Cause Analysis) -> Fix -> Commit.
