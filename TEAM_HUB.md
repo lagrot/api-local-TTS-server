@@ -72,3 +72,10 @@
 **Observation:** `/chat`-endpointen kopplar nu ihop LLM och TTS.  
 **Beslut / Förslag:** Redo för Ticket #8 (Integrationstest).  
 **Action:** Committade implementation.  
+
+---
+### [2026-04-18 17:30] [SCROM MASTER] → [TEAM]
+**Status:** Sprint 2 närmar sig slutet.  
+**Observation:** `/chat`-pipeline är nu operativ.  
+**Beslut / Förslag:** Utför Ticket #8 (Integrationstest) och slutför Sprint 2.  
+**Action:** Uppdaterat minnesloggar.  
