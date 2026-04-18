@@ -1,64 +1,77 @@
-# api-local-TTS-server
-Lokal AI-server med Llama-3 och XTTS-v2 för AMD GPU (Vulkan/ROCm) på WSL2.
+# AMD AI Voice API - Ollama & XTTS-v2 (ROCm)
 
-## Struktur
+Lokal AI-server optimerad för **AMD GPU (RX 6700 XT)** på native Linux (Ubuntu 24.04). Använder **Ollama** som hjärna (LLM) och **XTTS-v2** som röst (TTS).
+
+## 🚀 Egenskaper
+
+- **AMD GPU (ROCm) Acceleration**: Fullt stöd för XTTS-v2 på Radeon-kort.
+- **Ollama Integration**: Använder din befintliga Ollama-instans för LLM-svar (t.ex. DeepSeek-R1).
+- **RAM-Disk Processing**: Alla ljudfiler genereras i `/dev/shm` (RAM) för extrem hastighet och noll disk-slitage.
+- **Högkvalitativ MP3**: Automatisk konvertering från WAV till **320kbps MP3** via FFmpeg.
+- **DeepSeek-R1 Optimerad**: Rensar automatiskt bort `<think>` block innan uppläsning för naturligt tal.
+
+## 🛠️ Installation
+
+1. **Installera Systemberoenden**:
+   ```bash
+   sudo apt update && sudo apt install -y ffmpeg
+   ```
+
+2. **Förbered miljön (ROCm)**:
+   Kör vårt automatiserade setup-script som fixar AMD-drivrutiner och PyTorch:
+   ```bash
+   chmod +x setup_rocm.sh
+   ./setup_rocm.sh
+   ```
+
+3. **Ollama**:
+   Se till att Ollama körs lokalt på port 11434. Vi rekommenderar en svensk-optimerad modell:
+   ```bash
+   ollama run deepseek-r1:7b
+   # Eller för bättre svenska:
+   # ollama run llama3-swedish-instruct
+   ```
+
+## 🏃 Körning
+
+Starta servern med GPU-stöd:
+```bash
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/ollama/rocm
+export HSA_OVERRIDE_GFX_VERSION=10.3.0
+source .venv/bin/activate
+python -m uvicorn src.app:app --host 0.0.0.0 --port 8000 --reload
+```
+
+## 📡 API Endpoints
+
+### `POST /process`
+Kombinerad endpoint: Fråga -> LLM -> Tal -> MP3.
+- **Payload**:
+  ```json
+  {
+    "prompt": "Berätta en kort saga om en riddare.",
+    "model": "deepseek-r1:7b",
+    "speaker": "Daisy",
+    "bitrate": "320k"
+  }
+  ```
+- **Retur**: En högkvalitativ `.mp3` fil. Den genererade texten finns i HTTP-headern `X-Generated-Text`.
+
+### `GET /health`
+Kontrollera status för GPU, TTS-modellen och RAM-disken.
+
+### `GET /speakers`
+Lista alla tillgängliga röster i XTTS-v2 modellt (t.ex. Daisy, Viktor, Ana).
+
+## 📁 Struktur
 ```text
 .
-├── pyproject.toml      # Beroenden (uv), ruff- och pytest-inställningar
-├── models/             # Lägg din .gguf-modell här
+├── setup_rocm.sh       # Automatiserad miljö-setup för AMD
 ├── src/
-│   └── app.py          # FastAPI-applikation (LLM + TTS)
-├── tests/
-│   └── test_api.py     # API-tester
-└── audio_out/          # Temporär lagring för ljudfiler
+│   └── app.py          # FastAPI-applikation (Ollama + TTS + MP3)
+├── audio_out/          # (Används ej längre, allt körs i /dev/shm)
+└── pyproject.toml      # Projektberoenden (uv)
 ```
 
-## Installation
-
-1. **Installera uv** (om du inte har det):
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   ```
-
-2. **Förbered miljön**:
-   ```bash
-   uv sync
-   ```
-
-3. **Installera llama-cpp-python med Vulkan-stöd**:
-   ```bash
-   # I WSL2/Linux terminal
-   export CMAKE_ARGS="-DLLAMA_VULKAN=on"
-   uv pip install llama-cpp-python --force-reinstall --upgrade --no-cache-dir
-   ```
-
-4. **Modeller**:
-   - Skapa mappen `models/`: `mkdir models`
-   - Flytta din Llama-3 modell dit: `mv Meta-Llama-3-8B-Instruct.Q5_K_M.gguf models/`
-   - XTTS-v2 modellen laddas ner automatiskt vid första körningen (~2GB).
-
-## Körning
-
-Starta servern:
-```bash
-uv run uvicorn src.app:app --host 0.0.0.0 --port 8000 --reload
-```
-
-## API Endpoints
-
-- `POST /generate`: Tar en prompt och returnerar text.
-- `POST /speak`: Tar text och returnerar en `.wav`-fil (XTTS-v2).
-- `POST /process`: Kombinerad endpoint (Fråga -> Text -> Ljud).
-
-## Utveckling och Kvalitetssäkring
-
-### Tester
-Kör test-sviten:
-```bash
-uv run pytest
-```
-
-### Linting
-```bash
-uv run ruff check . --fix
-```
+## ⚖️ Licens
+Koden är MIT. XTTS-v2 använder [Coqui CPML](https://coqui.ai/cpml). Genom att använda detta API godkänner du deras villkor.
