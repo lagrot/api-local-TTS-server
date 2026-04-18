@@ -86,3 +86,10 @@
 **Observation:** Full kedja verifierad med långt manus och MP3-streaming.  
 **Beslut / Förslag:** Sprint 2 avslutad.  
 **Action:** Committade kod och uppdaterade testsvit.  
+
+---
+### [2026-04-18 17:50] [SCROM MASTER] → [TEAM]
+**Status:** Sprint 2 är officiellt avslutad.  
+**Observation:** Hela röst-samtals-kedjan är verifierad och stabil med hög kvalitet.  
+**Beslut / Förslag:** Sprint 2 stängs. Teamet är redo för nästa fas.  
+**Action:** Uppdaterat backlog och minne.  

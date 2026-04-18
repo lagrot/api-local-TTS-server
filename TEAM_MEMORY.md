@@ -44,3 +44,6 @@
 
 ## Godkända Ändringar (Fortsättning)
 - 2026-04-18 [LEAD ENGINEER] – Implementerad /tts_direct och fullständigt integrationstest.
+
+## Godkända Ändringar (Fortsättning)
+- 2026-04-18 [LEAD ENGINEER] – Implementerad /tts_direct och fullständigt integrationstest för Sprint 2.
