@@ -20,7 +20,9 @@ uv pip install torch==2.4.1+rocm6.0 torchvision==0.19.1+rocm6.0 torchaudio==2.4.
 # 4. Install Project Dependencies
 echo "Installing remaining project dependencies..."
 # We install TTS and other requirements manually to ensure no version conflicts
-uv pip install TTS==0.22.0 fastapi uvicorn pydantic python-multipart numpy==1.22.0 httpx transformers tokenizers
+# Explicitly pin transformers to 4.33.0 for Coqui TTS 0.22.0 compatibility
+uv pip install TTS==0.22.0 fastapi uvicorn pydantic python-multipart numpy==1.22.0 httpx transformers==4.33.0 tokenizers setuptools "setuptools<70.0.0"
+
 
 # 5. Final Verification Check
 echo "--- Verifying Installation ---"
