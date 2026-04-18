@@ -3,7 +3,7 @@ set -e
 
 echo "--- AMD AI Voice Setup (Simplified & Stable) ---"
 
-# 1. Start Fresh
+# 1. Fresh Start
 mkdir -p .tmp models/piper
 rm -rf .venv
 
@@ -16,13 +16,15 @@ source .venv/bin/activate
 echo "Installing project dependencies (Piper + FastAPI)..."
 uv pip install fastapi uvicorn piper-tts httpx
 
-# 4. Download High-Quality Swedish Piper Model
-# We use the 'alby' model which is one of the highest quality Swedish voices
-echo "Downloading high-quality Swedish Piper model (Alby)..."
+# 4. Download High-Quality Swedish Piper Model (NST)
+# We use the 'nst' model which you shared - it's the Swedish standard
+echo "Downloading Swedish Piper model (NST Medium)..."
 MODEL_DIR="models/piper"
-if [ ! -f "$MODEL_DIR/sv_SE-alby-medium.onnx" ]; then
-    wget -O "$MODEL_DIR/sv_SE-alby-medium.onnx" https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/sv/sv_SE/alby/medium/sv_SE-alby-medium.onnx
-    wget -O "$MODEL_DIR/sv_SE-alby-medium.onnx.json" https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/sv/sv_SE/alby/medium/sv_SE-alby-medium.onnx.json
+BASE_URL="https://huggingface.co/rhasspy/piper-voices/resolve/main/sv/sv_SE/nst/medium"
+
+if [ ! -f "$MODEL_DIR/sv_SE-nst-medium.onnx" ]; then
+    wget -O "$MODEL_DIR/sv_SE-nst-medium.onnx" "$BASE_URL/sv_SE-nst-medium.onnx"
+    wget -O "$MODEL_DIR/sv_SE-nst-medium.onnx.json" "$BASE_URL/sv_SE-nst-medium.onnx.json"
 fi
 
 # 5. Final Verification

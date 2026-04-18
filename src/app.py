@@ -16,7 +16,7 @@ from piper.voice import PiperVoice
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODEL = "deepseek-r1:7b"
 # Piper körs på CPU och hanterar rösten blixtsnabbt
-MODEL_PATH = "models/piper/sv_SE-alby-medium.onnx"
+MODEL_PATH = "models/piper/sv_SE-nst-medium.onnx"
 # Vi använder /dev/shm (RAM-disk på Linux) för extrem hastighet
 RAM_DIR = "/dev/shm/api_audio"
 os.makedirs(RAM_DIR, exist_ok=True)
