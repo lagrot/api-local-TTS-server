@@ -16,24 +16,30 @@ llm = OllamaClient()
 class ChatRequest(BaseModel):
     prompt: str
 
+class TTSRequest(BaseModel):
+    text: str
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
 
+@app.post("/tts_direct")
+async def tts_direct(request: TTSRequest):
+    return await generate_audio(request.text)
+
 @app.post("/chat")
 async def chat(request: ChatRequest):
+    text_response = await llm.generate_text(request.prompt)
+    return await generate_audio(text_response)
+
+async def generate_audio(text: str):
     try:
-        # 1. Hämta text från LLM
-        text_response = await llm.generate_text(request.prompt)
-        
-        # 2. Generera tal från MMS
-        inputs = loader.tokenizer(text_response, return_tensors="pt").to(loader.device)
+        inputs = loader.tokenizer(text, return_tensors="pt").to(loader.device)
         with torch.no_grad():
             output = loader.model(**inputs)
         
         audio = output.waveform[0].cpu().numpy()
         
-        # 3. Konvertera till MP3
         wav_buffer = io.BytesIO()
         wavfile.write(wav_buffer, loader.model.config.sampling_rate, audio)
         wav_buffer.seek(0)
