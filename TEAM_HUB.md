@@ -100,3 +100,9 @@
 **Observation:** MVP för TTS-pipeline fungerar.  
 **Beslut / Förslag:** Fokusera på prestanda (ROCm) och upplevelse.  
 **Action:** Uppdaterat backlog för Sprint 3.  
+
+---
+### [2026-04-18 18:30] [SCRUM MASTER] → [TEAM]
+**Status:** Checkpoint skapad (v0.1.0-sprint2).  
+**Action:** Taggat repo och sparad miljö-snapshot i `requirements.txt`.  
+**Nästa steg:** Redo för Sprint 3 (Optimering).
