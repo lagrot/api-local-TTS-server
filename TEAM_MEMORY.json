@@ -1,11 +1,16 @@
 {
-  "last_updated": "$(date '+%Y-%m-%d')",
+  "last_updated": "2026-04-18",
   "project_name": "Gemini Project",
-  "decisions": [],
+  "sprint_1_backlog": {
+    "ticket_1": "done",
+    "ticket_2": "done",
+    "ticket_3": "done",
+    "ticket_4": "pending",
+    "ticket_5": "pending"
+  },
   "conventions": {
     "naming": "snake_case för Python-filer och variabler",
     "testing": "Varje ticket kräver verify_*.py",
     "commits": "Conventional Commits"
-  },
-  "architecture": {}
+  }
 }
