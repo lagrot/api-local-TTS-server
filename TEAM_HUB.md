@@ -35,3 +35,11 @@
 **Beslut / Förslag:** Vi går vidare till Ticket #4 (TTS Endpoint).  
 **Action:** Lead Engineer committade implementationen.  
 **Nästa steg:** QA Engineer markerar Ticket #3 som DONE.
+
+---
+### [2026-04-18 14:15] [LEAD ENGINEER] → [ALLA]
+**Status:** Ticket #4 är genomförd.  
+**Observation:** `/tts`-endpointen fungerar och genererar giltiga `.wav`-filer.  
+**Beslut / Förslag:** Vi går vidare till Ticket #5 (Sprint Review).  
+**Action:** Lead Engineer committade implementationen.  
+**Nästa steg:** QA Engineer markerar Ticket #4 som DONE.
