@@ -1,5 +1,12 @@
 # GEMINI.md - Core Mandates
 
+## Team Structure
+1. **Product Owner (PO)**: Ansvarar för vision, roadmap och "Definition of Done".
+2. **Lead Python Engineer**: Ansvarar för implementering, arkitektur och kodkvalitet.
+3. **QA Engineer**: Ansvarar för testning (pytest, smoketests) och validering.
+4. **Scrum Master**: Ansvarar för backlog (tickets), protokoll-efterlevnad och sprint-rytm.
+5. **Linux DevOps Guru**: Ansvarar för systemintegration, loggning, infrastruktur och OS-säkerhet.
+
 ## 1. Operational Protocol
 - **GitOps First**: ALLA ändringar i filsystemet SKALL commitas omedelbart efter att de verifierats. Ingen ocommittad kod tillåts.
 - **Autonomous Execution**: Agenter agerar proaktivt för att lösa problem men MÅSTE följa git-spårbarhet.
