@@ -1,18 +1,15 @@
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
+*.pyo
+*.pyd
 .venv/
-.env
+.pytest_cache/
 
-# Project Specific
-models/
-audio_out/
-*.wav
-*.mp3
-
-# Build and OS
-build/
-dist/
+# System
 .DS_Store
 .tmp/
+
+# Data/Log
+audio_out/
+models/
