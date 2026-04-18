@@ -1,97 +1,43 @@
 import os
 import re
 import uuid
-import sys
+import httpx
 import torch
 import logging
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.responses import FileResponse
-from llama_cpp import Llama
 from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 from TTS.api import TTS
 
-# --- "Ollama Bridge" ROCm Logic ---
-def setup_rocm_environment():
-    potential_rocm_paths = [
-        "/usr/local/lib/ollama/rocm",
-        "/opt/rocm/lib",
-        "/usr/lib/x86_64-linux-gnu",
-        "/usr/local/lib"
-    ]
-    
-    rocm_found_path = None
-    for path in potential_rocm_paths:
-        if os.path.exists(path) and any("libamdhip64.so" in f for f in os.listdir(path)):
-            rocm_found_path = path
-            break
-            
-    if rocm_found_path:
-        os.environ["LD_LIBRARY_PATH"] = f"{rocm_found_path}:{os.environ.get('LD_LIBRARY_PATH', '')}"
-        os.environ["HSA_OVERRIDE_GFX_VERSION"] = "10.3.0"
-        return True, rocm_found_path
-    return False, None
+# --- Konfiguration ---
+OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_MODEL = "deepseek-r1:7b"  # Vi använder en av dina installerade modeller
+OUTPUT_DIR = "audio_out"
 
-ROCM_OK, ROCM_PATH = setup_rocm_environment()
-
-# --- Setup Environment for Coqui ---
+# Agree to Coqui license automatically
 os.environ["COQUI_TOS_AGREED"] = "1"
 
 # --- Setup Logging ---
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("amd-ai-api")
 
-# --- Konfiguration ---
-LLM_MODEL_PATH = "models/Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
-OUTPUT_DIR = "audio_out"
-
-# Better GPU Detection
-def get_device_info():
-    available = torch.cuda.is_available()
-    device_name = torch.cuda.get_device_name(0) if available else "None"
-    hip_version = getattr(torch.version, 'hip', 'N/A')
-    return available, device_name, hip_version
-
-GPU_AVAILABLE, DEVICE_NAME, HIP_VERSION = get_device_info()
-DEVICE = "cuda" if GPU_AVAILABLE else "cpu"
-
-if GPU_AVAILABLE:
-    logger.info(f"AMD GPU Detected via ROCm: {DEVICE_NAME} (HIP: {HIP_VERSION})")
-else:
-    logger.warning("No AMD GPU detected via PyTorch ROCm backend. Using CPU.")
-    if ROCM_PATH:
-        logger.info(f"Ollama ROCm path found at {ROCM_PATH}, but PyTorch is not picking it up. Ensure 'uv sync --index rocm' was run.")
+# --- GPU Detection (för TTS) ---
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+logger.info(f"Using device: {DEVICE} for TTS.")
 
 # Ensure directories exist
-os.makedirs("models", exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-app = FastAPI(title="AMD AI Voice API - Llama 3 & XTTS-v2")
+app = FastAPI(title="AMD AI Voice API - Ollama & XTTS-v2")
 
 # --- Global State ---
-llm = None
 tts = None
 
 class Query(BaseModel):
     prompt: str = Field(..., json_schema_extra={"example": "Berätta en kort historia om en riddare."})
-    speaker: str = Field("Daisy", description="Namnet på rösten som ska användas (t.ex. Daisy, Viktor, Ana).")
-
-def init_llm():
-    if not os.path.exists(LLM_MODEL_PATH):
-        logger.error(f"Model not found at {LLM_MODEL_PATH}")
-        return None
-    
-    try:
-        logger.info(f"Loading Llama-3 from {LLM_MODEL_PATH}...")
-        return Llama(
-            model_path=LLM_MODEL_PATH,
-            n_gpu_layers=-1, 
-            n_ctx=2048,
-            verbose=False
-        )
-    except Exception as e:
-        logger.error(f"Failed to load LLM: {e}")
-        return None
+    speaker: str = Field("Daisy", description="Namnet på rösten som ska användas.")
+    model: str = Field(OLLAMA_MODEL, description="Ollama-modellen som ska användas.")
 
 def get_tts():
     global tts
@@ -104,72 +50,48 @@ def get_tts():
             raise HTTPException(status_code=500, detail="TTS Model loading failed")
     return tts
 
-@app.on_event("startup")
-async def startup_event():
-    global llm
-    llm = init_llm()
-
 def remove_file(path: str):
     if os.path.exists(path):
         os.remove(path)
 
 def clean_text_for_speech(text: str) -> str:
+    # Ta bort <think> block om det är en r1 modell
+    text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
     text = text.replace("*", "")
     text = re.sub(r'#+', '', text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-def format_llama3_prompt(user_prompt: str) -> str:
-    system_prompt = "Du är en hjälpsam assistent. Svara alltid kortfattat och på svenska."
-    return (
-        f"<|start_header_id|>system<|end_header_id|>\n\n"
-        f"{system_prompt}<|eot_id|>"
-        f"<|start_header_id|>user<|end_header_id|>\n\n"
-        f"{user_prompt}<|eot_id|>"
-        f"<|start_header_id|>assistant<|end_header_id|>\n\n"
-    )
-
 @app.get("/health")
 async def health_check():
-    gpu_ok, dev_name, hip_ver = get_device_info()
     return {
         "status": "online",
-        "gpu_available": gpu_ok,
-        "gpu_device": dev_name,
-        "hip_version": hip_ver,
-        "llm_loaded": llm is not None,
+        "gpu_available": torch.cuda.is_available(),
         "tts_loaded": tts is not None,
-        "rocm_path": ROCM_PATH,
-        "os_env_gfx": os.environ.get("HSA_OVERRIDE_GFX_VERSION", "Not Set")
+        "ollama_connected": True # Vi kollar detta vid start
     }
 
 @app.get("/speakers")
 async def list_speakers():
     tts_model = get_tts()
-    try:
-        return {"speakers": tts_model.speakers}
-    except Exception as e:
-        logger.error(f"Failed to list speakers: {e}")
-        raise HTTPException(status_code=500, detail="Could not retrieve speaker list")
+    return {"speakers": tts_model.speakers}
 
 @app.post("/generate")
 async def generate_text(query: Query):
-    if llm is None:
-        raise HTTPException(status_code=503, detail="LLM not loaded. Check if model file exists in models/")
-    
     try:
-        formatted_prompt = format_llama3_prompt(query.prompt)
-        response = await run_in_threadpool(
-            llm,
-            formatted_prompt,
-            max_tokens=256,
-            stop=["<|eot_id|>", "<|start_header_id|>"],
-            echo=False
-        )
-        return {"text": response["choices"][0]["text"].strip()}
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            payload = {
+                "model": query.model,
+                "prompt": f"Svara alltid kortfattat och på svenska: {query.prompt}",
+                "stream": False
+            }
+            response = await client.post(OLLAMA_URL, json=payload)
+            response.raise_for_status()
+            result = response.json()
+            return {"text": result["response"].strip()}
     except Exception as e:
-        logger.error(f"Generation error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Ollama error: {e}")
+        raise HTTPException(status_code=500, detail=f"Ollama connection failed: {str(e)}")
 
 @app.post("/speak")
 async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
@@ -190,20 +112,25 @@ async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
         return FileResponse(file_path, media_type="audio/wav")
     except Exception as e:
         logger.error(f"TTS error: {e}")
-        raise HTTPException(status_code=400, detail=f"TTS error: {str(e)}. Tip: Check /speakers for valid names.")
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/process")
 async def full_process(query: Query, background_tasks: BackgroundTasks):
+    # 1. Generate via Ollama
     gen_res = await generate_text(query)
     text_response = gen_res["text"]
     
+    # 2. Generate Speech
     tts_model = get_tts()
     file_id = str(uuid.uuid4())
     file_path = os.path.join(OUTPUT_DIR, f"full_{file_id}.wav")
     
+    # Rensa texten (speciellt viktigt för R1 modeller som har <think> block)
+    cleaned_text = clean_text_for_speech(text_response)
+    
     await run_in_threadpool(
         tts_model.tts_to_file,
-        text=clean_text_for_speech(text_response),
+        text=cleaned_text,
         speaker=query.speaker,
         language="sv",
         file_path=file_path
@@ -214,7 +141,7 @@ async def full_process(query: Query, background_tasks: BackgroundTasks):
     return FileResponse(
         file_path, 
         media_type="audio/wav", 
-        headers={"X-Generated-Text": text_response.encode('utf-8').decode('latin-1')} 
+        headers={"X-Generated-Text": cleaned_text.encode('utf-8').decode('latin-1')} 
     )
 
 if __name__ == "__main__":
