@@ -2,64 +2,57 @@ import os
 import re
 import uuid
 import httpx
-import torch
 import logging
 import subprocess
+import wave
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
-from TTS.api import TTS
+from piper.voice import PiperVoice
 
 # --- Konfiguration ---
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODEL = "deepseek-r1:7b"
-# Vi använder en dedikerad svensk VITS-modell för bästa uttal
-TTS_MODEL_NAME = "tts_models/sv/cv/vits"
+# Vi använder Piper för bästa svenska röstkvalitet och stabilitet
+MODEL_PATH = "models/piper/sv_SE-tbatch-medium.onnx"
 RAM_DIR = "/dev/shm/api_audio"
 os.makedirs(RAM_DIR, exist_ok=True)
 
-# Agree to Coqui license automatically
-os.environ["COQUI_TOS_AGREED"] = "1"
+# Setup Environment
 os.environ["HSA_OVERRIDE_GFX_VERSION"] = "10.3.0"
 
 # --- Setup Logging ---
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("amd-ai-api")
 
-# --- GPU Detection ---
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-logger.info(f"Using device: {DEVICE} for TTS.")
-
-app = FastAPI(title="AMD AI Voice API - Native Swedish")
+app = FastAPI(title="AMD AI Voice API - Piper (Best Swedish)")
 
 # --- Global State ---
-tts = None
+voice = None
 
 class Query(BaseModel):
-    prompt: str = Field(..., json_schema_extra={"example": "Berätta en kort historia om en riddare."})
-    speaker: str = Field(None, description="VITS-modellen använder inte speaker-id på samma sätt som XTTS.")
+    prompt: str = Field(..., json_schema_extra={"example": "Berätta en historia."})
     model: str = Field(OLLAMA_MODEL, description="Ollama-modell.")
     bitrate: str = Field("320k", description="MP3 bitrate.")
 
-def get_tts():
-    global tts
-    if tts is None:
-        logger.info(f"Loading Swedish VITS to {DEVICE}...")
+def get_voice():
+    global voice
+    if voice is None:
+        logger.info(f"Loading Piper voice from {MODEL_PATH}...")
         try:
-            # VITS är snabbare och har bättre svenskt uttal än XTTS hackat till engelska
-            tts = TTS(TTS_MODEL_NAME).to(DEVICE)
+            # Piper körs extremt snabbt på CPU eller GPU via ONNX
+            voice = PiperVoice.load(MODEL_PATH)
         except Exception as e:
-            logger.error(f"Failed to load TTS: {e}")
-            raise HTTPException(status_code=500, detail="TTS Model loading failed")
-    return tts
+            logger.error(f"Failed to load Piper voice: {e}")
+            raise HTTPException(status_code=500, detail="Voice model loading failed")
+    return voice
 
 def remove_file(path: str):
     if os.path.exists(path):
         os.remove(path)
 
 def clean_text_for_speech(text: str) -> str:
-    # Ta bort <think> block
     text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
     text = text.replace("*", "").replace("_", "")
     text = re.sub(r'#+', '', text)
@@ -84,20 +77,10 @@ def convert_to_mp3(wav_path: str, mp3_path: str, bitrate: str = "320k"):
 async def health_check():
     return {
         "status": "online",
-        "gpu_available": torch.cuda.is_available(),
-        "tts_loaded": tts is not None,
-        "tts_model": TTS_MODEL_NAME,
+        "engine": "Piper",
+        "voice_loaded": voice is not None,
         "ram_disk_ready": os.path.exists(RAM_DIR)
     }
-
-@app.get("/speakers")
-async def list_speakers():
-    tts_model = get_tts()
-    # VITS-modeller har oftast inga speakers eller bara en
-    try:
-        return {"speakers": tts_model.speakers or []}
-    except:
-        return {"speakers": []}
 
 @app.post("/generate")
 async def generate_text(query: Query):
@@ -105,7 +88,7 @@ async def generate_text(query: Query):
         async with httpx.AsyncClient(timeout=180.0) as client:
             payload = {
                 "model": query.model,
-                "prompt": f"Du är en hjälpsam assistent. Svara alltid kort på svenska. {query.prompt}",
+                "prompt": f"Du är en hjälpsam assistent. Svara kort på svenska. {query.prompt}",
                 "stream": False
             }
             response = await client.post(OLLAMA_URL, json=payload)
@@ -125,18 +108,18 @@ async def full_process(query: Query, background_tasks: BackgroundTasks):
     if not cleaned_text:
         raise HTTPException(status_code=500, detail="Empty text response from LLM")
 
-    tts_model = get_tts()
+    voice_engine = get_voice()
     file_id = str(uuid.uuid4())
     wav_path = os.path.join(RAM_DIR, f"{file_id}.wav")
     mp3_path = os.path.join(RAM_DIR, f"{file_id}.mp3")
     
     try:
-        await run_in_threadpool(
-            tts_model.tts_to_file,
-            text=cleaned_text,
-            file_path=wav_path
-        )
+        # Generera WAV direkt i RAM med Piper
+        with wave.open(wav_path, "wb") as wav_file:
+            # Piper genererar rå ljudström
+            voice_engine.synthesize(cleaned_text, wav_file)
         
+        # Konvertera till MP3
         if not convert_to_mp3(wav_path, mp3_path, query.bitrate):
             raise HTTPException(status_code=500, detail="MP3 conversion failed")
 
