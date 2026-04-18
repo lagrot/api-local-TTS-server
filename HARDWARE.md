@@ -1,0 +1,14 @@
+# Hardware Inventory & System Layout
+
+## Compute Resources
+- **CPU:** AMD Ryzen 5 5600X (6-Core)
+- **RAM:** 31 GiB
+- **GPU:** AMD Radeon RX 6700 XT (12 GB VRAM)
+  - **Driver/Framework:** Navi 22 (ROCm-stöd tillgängligt för framtida optimering)
+
+## Storage
+- **Primary:** 2x 1TB NVMe SSD (High-performance storage for model weights)
+
+## Optimization Strategy
+- **Phase 1 (Current):** CPU-based inference (Stability & Reliability).
+- **Phase 2 (Future):** Enable ROCm acceleration via `setup_rocm.sh` to utilize 12GB VRAM.
