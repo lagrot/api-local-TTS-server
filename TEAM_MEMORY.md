@@ -4,9 +4,9 @@
 
 ## Aktuell Backlog (Sprint 1)
 - [x] **Ticket #1: Setup & Dependencies.** Initiera `pyproject.toml` och verifiera miljö.
-- [x] **Ticket #2: MMS Model Loader.** Implementera modul för att ladda MMS-modellen. (QA-krav: Enhetstest verifierar att modellen laddas i minnet)
-- [ ] **Ticket #3: Basic API Skeleton.** Implementera FastAPI-server med hälso-endpoint. (QA-krav: `curl localhost:8000/health` returnerar 200)
-- [ ] **Ticket #4: TTS Endpoint.** Integrera MMS-loader i API-servern. (QA-krav: `/tts`-endpoint genererar en giltig ljudfil)
+- [x] **Ticket #2: MMS Model Loader.** Implementera modul för att ladda MMS-modellen.
+- [x] **Ticket #3: Basic API Skeleton.** Implementera FastAPI-server med hälso-endpoint.
+- [x] **Ticket #4: TTS Endpoint.** Integrera MMS-loader i API-servern.
 - [ ] **Ticket #5: Sprint Review & Cleanup.** QA-validering av hela kedjan.
 
 ## Arkitektur & Designbeslut
@@ -28,6 +28,8 @@
 ## Godkända Ändringar
 - 2026-04-18 [SCRUM MASTER] – Initialt repository, setup och dokumentation.
 - 2026-04-18 [LEAD ENGINEER] – Implementerad MMSLoader och tillhörande QA-test.
+- 2026-04-18 [LEAD ENGINEER] – Implementerat FastAPI-skelett och hälso-test.
+- 2026-04-18 [LEAD ENGINEER] – Implementerad /tts-endpoint och QA-verifiering.
 
 ## Definition of Done (DoD)
 1. Kod commitad med konventionell commit-message.
