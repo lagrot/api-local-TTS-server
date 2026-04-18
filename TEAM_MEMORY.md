@@ -2,43 +2,29 @@
 
 **Senast uppdaterad:** 2026-04-18
 
-## Aktuell Backlog (Sprint 1)
-- [x] **Ticket #1: Setup & Dependencies.** Initiera `pyproject.toml` och verifiera miljö.
-- [x] **Ticket #2: MMS Model Loader.** Implementera modul för att ladda MMS-modellen.
-- [x] **Ticket #3: Basic API Skeleton.** Implementera FastAPI-server med hälso-endpoint.
-- [x] **Ticket #4: TTS Endpoint.** Integrera MMS-loader i API-servern.
-- [x] **Ticket #5: Sprint Review & Cleanup.** QA-validering av hela kedjan.
+## Aktuell Backlog (Sprint 2)
+- [ ] **Ticket #6: Ollama-klient.** Implementera modul för Ollama-kommunikation.
+- [ ] **Ticket #7: Orchestration.** Skapa `/chat`-endpoint som kedjar LLM + TTS.
+- [ ] **Ticket #8: Integrationstest.** Validera hela "röst-samtals-kedjan".
 
 ## Arkitektur & Designbeslut
-- KISS-principen (Keep It Simple, Stupid): Minimala beroenden, fokus på funktionalitet.
+- KISS-principen: Minimala beroenden, fokus på funktionalitet.
 - Hybrid-infrastruktur: Ollama (LLM) + Meta MMS (TTS).
+- Device Agnostic: Koden använder `self.device = "cuda" if torch.cuda.is_available() else "cpu"`.
 
 ## Viktiga Fakta & Konventioner
 - Namngivning: snake_case för Python-filer och variabler.
 - Testning: Varje ticket kräver ett `tests/verify_*.py`.
-- Commits: Conventional Commits.
-- GitOps: Alla ändringar commitas direkt efter QA-godkännande.
+- GitOps: Alla ändringar commitas direkt.
 
 ## Lärdomar & Gotchas
-- Miljökonfigurationer (Python 3.10 vs 3.12) kan orsaka dependency hell; håll miljön strikt.
-- Verifiera alltid `torch` via `.venv/bin/python`.
-- Python-import-fel fixas genom `pytest.ini` med `pythonpath = .`.
-- Alla test-beroenden (t.ex. `pytest`) måste explicit deklareras i `pyproject.toml`.
+- Använd `ffmpeg` för ljudkonvertering (MP3) då `pydub`/`audioop` är inkompatibelt med Python 3.13.
+- `pytest.ini` med `pythonpath = .` löser import-problem.
 
 ## Godkända Ändringar
-- 2026-04-18 [SCRUM MASTER] – Initialt repository, setup och dokumentation.
-- 2026-04-18 [LEAD ENGINEER] – Implementerad MMSLoader och tillhörande QA-test.
-- 2026-04-18 [LEAD ENGINEER] – Implementerat FastAPI-skelett och hälso-test.
-- 2026-04-18 [LEAD ENGINEER] – Implementerad /tts-endpoint och QA-verifiering.
-- 2026-04-18 [QA ENGINEER] – Sprint Review: Verifierat hela kedjan (4/4 tester godkända).
+- 2026-04-18 [SCRUM MASTER] – Sprint 2 backlog och planering.
 
 ## Definition of Done (DoD)
 1. Kod commitad med konventionell commit-message.
 2. `verify_*.py` testexekvering är grön.
 3. QA Engineer har verifierat funktionaliteten.
-
-## Lärdomar & Gotchas
-- [2026-04-18] Python 3.13 saknar `audioop` (inbyggt), vilket bryter `pydub`. Använd `ffmpeg` via `subprocess` för ljudkonvertering; det är snabbare och kräver inga extra Python-beroenden.
-
-## Arkitektur & Designbeslut
-- Ljudkvalitet: Vi använder FFmpeg med `aresample` (soxr) och `compand`-filter för att uppnå radio-/TV-standard (48kHz, 320kbps).
