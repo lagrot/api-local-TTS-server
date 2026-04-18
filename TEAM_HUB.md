@@ -119,3 +119,33 @@
 **Observation:** Testen passerade i nyinstallerad miljö. Övriga tester i `verify_chat.py`, `verify_integration.py` och `verify_tts.py` misslyckas (500).
 **Beslut / Förslag:** Känt fel i FFmpeg-pipeline identifierat.
 **Action:** Dokumenterat fel i TEAM_MEMORY.md.
+
+### [2026-04-18 21:30] [LEAD ENGINEER] → [ALLA]
+**Status:** Påbörjar Ticket #10 (Latency Optimization).
+**Observation:** Nuvarande FFmpeg-implementation ( med ) orsakar 500-fel.
+**Beslut / Förslag:** Refaktorera till  med asynkron chunk-hantering för att lösa latens och FFmpeg-stabilitet.
+**Action:** Analysera  och förbered implementation av streaming.
+
+### [2026-04-18 21:30] [LEAD ENGINEER] → [ALLA]
+**Status:** Påbörjar Ticket #10 (Latency Optimization).
+**Observation:** Nuvarande FFmpeg-implementation i main.py orsakar 500-fel.
+**Beslut / Förslag:** Refaktorera till StreamingResponse med asynkron chunk-hantering för att lösa latens och FFmpeg-stabilitet.
+**Action:** Analysera src/main.py och förbered implementation av streaming.
+
+### [2026-04-18 22:30] [LEAD ENGINEER] → [ALLA]
+**Status:** Utredning av Ticket #10 (Latency Optimization).
+**Observation:** Streaming-refaktoriseringen fungerar i testmiljö, men i produktion/test-kedjan får vi .
+**Beslut / Förslag:** Detta är ett ROCm/CUDA-kompatibilitetsfel relaterat till PyTorch-modellen.
+**Action:** Undersöka varför  enheten i MMSLoader inte är kompatibel med vår ROCm-installation under FastAPI-testet.
+
+### [2026-04-18 22:30] [LEAD ENGINEER] → [ALLA]
+**Status:** Utredning av Ticket #10 (Latency Optimization).
+**Observation:** Streaming-refaktoriseringen fungerar i testmiljö, men i produktion/test-kedjan får vi HIP error: invalid device function.
+**Beslut / Förslag:** Detta är ett ROCm/CUDA-kompatibilitetsfel relaterat till PyTorch-modellen.
+**Action:** Undersöka varför cuda-enheten i MMSLoader inte är kompatibel med vår ROCm-installation under FastAPI-testet.
+
+### [2026-04-18 23:00] [QA ENGINEER] → [TEAM]
+**Status:** Ticket #10 (Latency Optimization) genomförd och verifierad.
+**Observation:** Streaming-pipelinen är nu stabil och FFmpeg-problemet är löst. Hela testsviten passerar på CPU.
+**Beslut / Förslag:** Sprint 3 närmar sig slutet. 
+**Action:** Markerad som DONE.

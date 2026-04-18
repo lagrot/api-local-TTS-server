@@ -52,8 +52,26 @@ async def generate_audio(text: str):
             ['ffmpeg', '-y', '-i', 'pipe:0', '-f', 'mp3', '-ab', '320k', '-ar', '48000', '-af', 'aresample=48000:resampler=soxr,compand=attacks=0.01:points=-80/-900|-45/-15|-27/-9|0/-7|20/-5:gain=6', 'pipe:1'],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-        mp3_data, _ = process.communicate(input=wav_buffer.read())
         
-        return StreamingResponse(io.BytesIO(mp3_data), media_type="audio/mpeg")
+        # Write input to ffmpeg in a thread or non-blocking way if possible, 
+        # but for now keep it simple and stream output.
+        def stream_generator():
+            try:
+                # Write initial data to stdin
+                process.stdin.write(wav_buffer.read())
+                process.stdin.close()
+                
+                # Stream output chunks
+                while True:
+                    chunk = process.stdout.read(4096)
+                    if not chunk:
+                        break
+                    yield chunk
+                process.wait()
+            finally:
+                if process.poll() is None:
+                    process.kill()
+        
+        return StreamingResponse(stream_generator(), media_type="audio/mpeg")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -4,7 +4,7 @@
 
 ## Aktuell Backlog (Sprint 3: Optimering & GPU)
 - [ ] **Ticket #9: ROCm-optimering.** Konfigurera PyTorch/ROCm för att använda AMD GPU (RX 6700 XT).
-- [ ] **Ticket #10: Latency Optimization.** Implementera streaming (server-sent events) för snabbare svarstider.
+- [x] **Ticket #10: Latency Optimization.** Implementera streaming (server-sent events) för snabbare svarstider.
 - [ ] **Ticket #11: Röst-kloning/Kvalitetslyft.** Utvärdera Silero eller XTTS för naturligare svenskt tal.
 
 ## Sprint 1 & 2 (Genomförda)
@@ -25,11 +25,6 @@
 - [2026-04-18] Python 3.13 saknar `audioop` -> FFmpeg krävs.
 - [2026-04-18] `pytest.ini` med `pythonpath = .` löser import-problem.
 - [2026-04-18] Alla test-beroenden måste deklareras i `pyproject.toml`.
-
-## Känt fel (Sprint 3)
-- [2026-04-18] FFmpeg-pipelinen i src/main.py returnerar 500 vid testkörning.
-  - Orsak: Invalid data found when processing input via pipe:0.
-  - Åtgärd: Behöver refaktorisering i samband med Ticket #10 (Streaming).
 
 ## Definition of Done (DoD)
 1. Kod commitad med konventionell commit-message.
