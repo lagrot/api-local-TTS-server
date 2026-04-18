@@ -26,14 +26,21 @@ async def tts(request: TTSRequest):
         
         audio = output.waveform[0].numpy()
         
-        # Skapa WAV i RAM
+        # Spara till RAM-buffer
         wav_buffer = io.BytesIO()
         wavfile.write(wav_buffer, loader.model.config.sampling_rate, audio)
         wav_buffer.seek(0)
         
-        # Konvertera till MP3 med ffmpeg via subprocess
+        # Konvertera till högkvalitativ MP3 med FFmpeg-filter för radio-feeling
         process = subprocess.Popen(
-            ['ffmpeg', '-i', 'pipe:0', '-f', 'mp3', '-ab', '192k', 'pipe:1'],
+            [
+                'ffmpeg', '-y', '-i', 'pipe:0', 
+                '-f', 'mp3', 
+                '-ab', '320k',              # Max bitrate
+                '-ar', '48000',             # 48kHz (TV-standard)
+                '-af', 'aresample=48000:resampler=soxr,compand=attacks=0.01:points=-80/-900|-45/-15|-27/-9|0/-7|20/-5:gain=6', 
+                'pipe:1'
+            ],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE

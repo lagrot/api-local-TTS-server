@@ -39,3 +39,6 @@
 
 ## Lärdomar & Gotchas
 - [2026-04-18] Python 3.13 saknar `audioop` (inbyggt), vilket bryter `pydub`. Använd `ffmpeg` via `subprocess` för ljudkonvertering; det är snabbare och kräver inga extra Python-beroenden.
+
+## Arkitektur & Designbeslut
+- Ljudkvalitet: Vi använder FFmpeg med `aresample` (soxr) och `compand`-filter för att uppnå radio-/TV-standard (48kHz, 320kbps).
