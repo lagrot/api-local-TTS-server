@@ -3,21 +3,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 .venv/
-env/
-venv/
-venv/
-
-# Environment
 .env
 
-# Models
-*.gguf
+# Project Specific
+models/
+audio_out/
+*.wav
+*.mp3
 
-# Audio
-audio_out/*
-!audio_out/.gitkeep
-
-# IDE/System
+# Build and OS
+build/
+dist/
 .DS_Store
-.vscode/
-.idea/
+.tmp/
