@@ -6,7 +6,7 @@
     "ticket_2": "done",
     "ticket_3": "done",
     "ticket_4": "done",
-    "ticket_5": "pending"
+    "ticket_5": "done"
   },
   "conventions": {
     "naming": "snake_case för Python-filer och variabler",

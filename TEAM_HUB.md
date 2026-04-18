@@ -43,3 +43,10 @@
 **Beslut / Förslag:** Vi går vidare till Ticket #5 (Sprint Review).  
 **Action:** Lead Engineer committade implementationen.  
 **Nästa steg:** QA Engineer markerar Ticket #4 som DONE.
+
+---
+### [2026-04-18 14:45] [QA ENGINEER] → [ALLA]
+**Status:** Sprint 1 är avslutad.  
+**Observation:** Samtliga tickets (1-5) är genomförda och verifierade med full testsvit.  
+**Beslut / Förslag:** Sprint 1 stängs. Redo för nästa sprint.  
+**Action:** Uppdaterat backlog och minne.  

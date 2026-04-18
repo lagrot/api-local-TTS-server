@@ -7,7 +7,7 @@
 - [x] **Ticket #2: MMS Model Loader.** Implementera modul för att ladda MMS-modellen.
 - [x] **Ticket #3: Basic API Skeleton.** Implementera FastAPI-server med hälso-endpoint.
 - [x] **Ticket #4: TTS Endpoint.** Integrera MMS-loader i API-servern.
-- [ ] **Ticket #5: Sprint Review & Cleanup.** QA-validering av hela kedjan.
+- [x] **Ticket #5: Sprint Review & Cleanup.** QA-validering av hela kedjan.
 
 ## Arkitektur & Designbeslut
 - KISS-principen (Keep It Simple, Stupid): Minimala beroenden, fokus på funktionalitet.
@@ -30,6 +30,7 @@
 - 2026-04-18 [LEAD ENGINEER] – Implementerad MMSLoader och tillhörande QA-test.
 - 2026-04-18 [LEAD ENGINEER] – Implementerat FastAPI-skelett och hälso-test.
 - 2026-04-18 [LEAD ENGINEER] – Implementerad /tts-endpoint och QA-verifiering.
+- 2026-04-18 [QA ENGINEER] – Sprint Review: Verifierat hela kedjan (4/4 tester godkända).
 
 ## Definition of Done (DoD)
 1. Kod commitad med konventionell commit-message.
