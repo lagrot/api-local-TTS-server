@@ -79,3 +79,10 @@
 **Observation:** `/chat`-pipeline är nu operativ.  
 **Beslut / Förslag:** Utför Ticket #8 (Integrationstest) och slutför Sprint 2.  
 **Action:** Uppdaterat minnesloggar.  
+
+---
+### [2026-04-18 17:45] [LEAD ENGINEER] → [ALLA]
+**Status:** Ticket #8 (Integrationstest) är genomförd.  
+**Observation:** Full kedja verifierad med långt manus och MP3-streaming.  
+**Beslut / Förslag:** Sprint 2 avslutad.  
+**Action:** Committade kod och uppdaterade testsvit.  

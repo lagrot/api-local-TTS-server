@@ -41,3 +41,6 @@
 
 ## Godkända Ändringar (Fortsättning)
 - 2026-04-18 [LEAD ENGINEER] – Implementerad /chat-endpoint (Orchestration).
+
+## Godkända Ändringar (Fortsättning)
+- 2026-04-18 [LEAD ENGINEER] – Implementerad /tts_direct och fullständigt integrationstest.
