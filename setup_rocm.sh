@@ -3,27 +3,27 @@ set -e
 
 echo "--- AMD AI Voice Setup (Ollama-Integrated) ---"
 
-# 1. Environment and VENV
+# 1. Start Fresh
+echo "Clearing old environment for a clean state..."
+rm -rf .venv
 mkdir -p audio_out .tmp
-if [ ! -d ".venv" ]; then
-    echo "Creating virtual environment..."
-    uv venv --python 3.10
-fi
 
+# 2. Create new venv and Sync
+echo "Creating new virtual environment and syncing with ROCm index..."
+uv venv --python 3.10
 source .venv/bin/activate
+uv sync --index rocm
 
-# 2. Install PyTorch with ROCm 6.0 (for XTTS-v2)
-echo "Installing PyTorch with ROCm 6.0 support..."
-uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.0 --force-reinstall
-
-# 3. Sync other dependencies from pyproject.toml
-echo "Syncing other project dependencies..."
-uv sync
-
-# 4. Final Verification Check
+# 3. Final Verification Check
 echo "--- Verifying Installation ---"
-python3 -c "import torch; print(f'Torch: {torch.__version__}'); print(f'HIP Backend: {getattr(torch.version, \"hip\", \"MISSING\")}'); print(f'GPU Available: {torch.cuda.is_available()}')"
+# Redefining paths for the check script
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/ollama/rocm
+export HSA_OVERRIDE_GFX_VERSION=10.3.0
+
+python3 -c "import torch; print(f'Torch: {torch.__version__}'); print(f'HIP Backend: {getattr(torch.version, \"hip\", \"MISSING\")}'); print(f'GPU Available: {torch.cuda.is_available()}'); print(f'Device: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"None\"}')"
 
 echo "--- Setup Complete! ---"
-echo "To start the server:"
+echo "To start the server with GPU support:"
+echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib/ollama/rocm"
+echo "export HSA_OVERRIDE_GFX_VERSION=10.3.0"
 echo "source .venv/bin/activate && uv run uvicorn src.app:app --host 0.0.0.0 --port 8000 --reload"
