@@ -26,6 +26,11 @@
 - [2026-04-18] `pytest.ini` med `pythonpath = .` löser import-problem.
 - [2026-04-18] Alla test-beroenden måste deklareras i `pyproject.toml`.
 
+## Känt fel (Sprint 3)
+- [2026-04-18] FFmpeg-pipelinen i src/main.py returnerar 500 vid testkörning.
+  - Orsak: Invalid data found when processing input via pipe:0.
+  - Åtgärd: Behöver refaktorisering i samband med Ticket #10 (Streaming).
+
 ## Definition of Done (DoD)
 1. Kod commitad med konventionell commit-message.
 2. `verify_*.py` testexekvering är grön.

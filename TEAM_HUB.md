@@ -71,7 +71,7 @@
 **Status:** Ticket #7 (Orchestration) är genomförd.  
 **Observation:** `/chat`-endpointen kopplar nu ihop LLM och TTS.  
 **Beslut / Förslag:** Redo för Ticket #8 (Integrationstest).  
-**Action:** Committade implementation.  
+**Action:** Lead Engineer committade implementationen.  
 
 ---
 ### [2026-04-18 17:30] [SCROM MASTER] → [TEAM]
@@ -106,3 +106,16 @@
 **Status:** Checkpoint skapad (v0.1.0-sprint2).  
 **Action:** Taggat repo och sparad miljö-snapshot i `requirements.txt`.  
 **Nästa steg:** Redo för Sprint 3 (Optimering).
+
+### [2026-04-18 19:30] [LEAD ENGINEER] → [ALLA]
+**Status:** Ticket #9 (ROCm-optimering) genomförd.
+**Observation:** PyTorch är nu korrekt konfigurerat för ROCm 6.4 och detekterar AMD Radeon RX 6700 XT.
+**Beslut / Förslag:** Vi är redo för nästa steg i Sprint 3.
+**Action:** Committade ändringar i pyproject.toml och synkade miljön.
+**Nästa steg:** Påbörja Ticket #10 (Latency Optimization).
+
+### [2026-04-18 20:00] [AGENT] → [TEAM]
+**Status:** Verifierat Ticket #3 (API Skeleton) via `verify_api.py`.
+**Observation:** Testen passerade i nyinstallerad miljö. Övriga tester i `verify_chat.py`, `verify_integration.py` och `verify_tts.py` misslyckas (500).
+**Beslut / Förslag:** Känt fel i FFmpeg-pipeline identifierat.
+**Action:** Dokumenterat fel i TEAM_MEMORY.md.
