@@ -9,14 +9,32 @@
 ## 2. Development Lifecycle Automation
 Efter VARJE ändring av filer (skapa/ändra/radera):
 
-1. **Review**: Granska för syntax, hemligheter, hårda sökvägar, stil.
-2. **Stage & Commit**:
-   - `git add .`
-   - `git commit -m "[#Ticket] Beskrivning"`
-3. **Verify**: QA kör `tests/` och rapporterar status.
-4. **Report**: Summera ändringar.
+### 1. Code Review
+Innan staging, granska ALLA modifierade filer för:
+- Syntaxfel och uppenbara buggar.
+- **Säkerhet**: Inga hårdkodade hemligheter, API-nycklar eller credentials.
+- **Integritet**: Inga absoluta lokala sökvägar (använd `<PATH_TO_PROJECT>` eller liknande).
+- **Stil**: Följ projektets kodstil, inga oanvända imports.
+- **Regression**: Om test finns, verifiera att de inte är trasiga.
+- **Stopp**: Vid kritiska fel – avbryt commit och rapportera.
+
+### 2. Stage & Commit
+- Stage alla ändrade/nya filer (exkludera `.env`, `node_modules/`, build-artifakter).
+- Skriv commit-meddelande enligt Conventional Commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`.
+- Håll ämnesraden under 72 tecken.
+
+### 3. Push
+- Push till `origin` på aktuell branch. Aldrig force-push. Aldrig direkt till `main`/`master`.
+
+### 4. Report & Notify
+Summera vad som ändrats, commit-meddelande och branch.
 
 ## 3. TDD Protocol
 - Varje ticket KRÄVER ett test i `tests/`.
 - Ticketen är inte DONE förrän `verify_*.py` är grön.
 - Om ett test misslyckas: RCA (Root Cause Analysis) -> Fix -> Commit.
+
+## 4. Self-Check (run after every response)
+- [ ] Modifierade jag kodfiler?
+- [ ] Om ja: körde jag review → commit → push-pipelinen?
+- [ ] Om nej: förklara varför.
