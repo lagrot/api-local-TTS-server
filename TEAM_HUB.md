@@ -93,3 +93,10 @@
 **Observation:** Hela röst-samtals-kedjan är verifierad och stabil med hög kvalitet.  
 **Beslut / Förslag:** Sprint 2 stängs. Teamet är redo för nästa fas.  
 **Action:** Uppdaterat backlog och minne.  
+
+---
+### [2026-04-18 18:00] [SCRUM MASTER] → [TEAM]
+**Status:** Sprint 3 planerad.  
+**Observation:** MVP för TTS-pipeline fungerar.  
+**Beslut / Förslag:** Fokusera på prestanda (ROCm) och upplevelse.  
+**Action:** Uppdaterat backlog för Sprint 3.  

@@ -2,10 +2,13 @@
 
 **Senast uppdaterad:** 2026-04-18
 
-## Aktuell Backlog (Sprint 2)
-- [x] **Ticket #6: Ollama-klient.** Implementera modul för Ollama-kommunikation.
-- [ ] **Ticket #7: Orchestration.** Skapa `/chat`-endpoint som kedjar LLM + TTS.
-- [ ] **Ticket #8: Integrationstest.** Validera hela "röst-samtals-kedjan".
+## Aktuell Backlog (Sprint 3: Optimering & GPU)
+- [ ] **Ticket #9: ROCm-optimering.** Konfigurera PyTorch/ROCm för att använda AMD GPU (RX 6700 XT).
+- [ ] **Ticket #10: Latency Optimization.** Implementera streaming (server-sent events) för snabbare svarstider.
+- [ ] **Ticket #11: Röst-kloning/Kvalitetslyft.** Utvärdera Silero eller XTTS för naturligare svenskt tal.
+
+## Sprint 1 & 2 (Genomförda)
+- Alla tickets i Sprint 1 & 2 är klara (se historik i TEAM_HUB.md).
 
 ## Arkitektur & Designbeslut
 - KISS-principen: Minimala beroenden, fokus på funktionalitet.
@@ -13,37 +16,17 @@
 - Device Agnostic: Koden använder `self.device = "cuda" if torch.cuda.is_available() else "cpu"`.
 
 ## Viktiga Fakta & Konventioner
-- Namngivning: snake_case för Python-filer och variabler.
+- Namngivning: snake_case.
 - Testning: Varje ticket kräver ett `tests/verify_*.py`.
 - Commits: Conventional Commits.
 - GitOps: Alla ändringar commitas direkt.
 
 ## Lärdomar & Gotchas
-- [2026-04-18] Python 3.13 saknar `audioop` (inbyggt), vilket bryter `pydub`. Använd `ffmpeg`.
+- [2026-04-18] Python 3.13 saknar `audioop` -> FFmpeg krävs.
 - [2026-04-18] `pytest.ini` med `pythonpath = .` löser import-problem.
-- [2026-04-18] Ollama modellnamn måste matcha exakt enligt `http://localhost:11434/api/tags`.
-
-## Godkända Ändringar
-- 2026-04-18 [SCRUM MASTER] – Initialt repository, setup och dokumentation.
-- 2026-04-18 [LEAD ENGINEER] – Implementerad MMSLoader och tillhörande QA-test.
-- 2026-04-18 [LEAD ENGINEER] – Implementerat FastAPI-skelett och hälso-test.
-- 2026-04-18 [LEAD ENGINEER] – Implementerad /tts-endpoint och QA-verifiering.
-- 2026-04-18 [LEAD ENGINEER] – Implementerad OllamaClient.
+- [2026-04-18] Alla test-beroenden måste deklareras i `pyproject.toml`.
 
 ## Definition of Done (DoD)
 1. Kod commitad med konventionell commit-message.
 2. `verify_*.py` testexekvering är grön.
 3. QA Engineer har verifierat funktionaliteten.
-
-## Godkända Ändringar
-- 2026-04-18 [LEAD ENGINEER] – Implementerad /chat-endpoint (Orchestration).
-
-
-## Godkända Ändringar (Fortsättning)
-- 2026-04-18 [LEAD ENGINEER] – Implementerad /chat-endpoint (Orchestration).
-
-## Godkända Ändringar (Fortsättning)
-- 2026-04-18 [LEAD ENGINEER] – Implementerad /tts_direct och fullständigt integrationstest.
-
-## Godkända Ändringar (Fortsättning)
-- 2026-04-18 [LEAD ENGINEER] – Implementerad /tts_direct och fullständigt integrationstest för Sprint 2.
