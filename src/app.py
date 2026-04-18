@@ -14,7 +14,8 @@ from TTS.api import TTS
 # --- Konfiguration ---
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODEL = "deepseek-r1:7b"
-# Vi använder /dev/shm (RAM-disk på Linux) för extrem hastighet
+# Vi använder en dedikerad svensk VITS-modell för bästa uttal
+TTS_MODEL_NAME = "tts_models/sv/cv/vits"
 RAM_DIR = "/dev/shm/api_audio"
 os.makedirs(RAM_DIR, exist_ok=True)
 
@@ -30,23 +31,24 @@ logger = logging.getLogger("amd-ai-api")
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 logger.info(f"Using device: {DEVICE} for TTS.")
 
-app = FastAPI(title="AMD AI Voice API - Ollama & RAM-MP3")
+app = FastAPI(title="AMD AI Voice API - Native Swedish")
 
 # --- Global State ---
 tts = None
 
 class Query(BaseModel):
     prompt: str = Field(..., json_schema_extra={"example": "Berätta en kort historia om en riddare."})
-    speaker: str = Field("Daisy", description="Namnet på rösten.")
+    speaker: str = Field(None, description="VITS-modellen använder inte speaker-id på samma sätt som XTTS.")
     model: str = Field(OLLAMA_MODEL, description="Ollama-modell.")
-    bitrate: str = Field("320k", description="MP3 bitrate (t.ex. 128k, 256k, 320k).")
+    bitrate: str = Field("320k", description="MP3 bitrate.")
 
 def get_tts():
     global tts
     if tts is None:
-        logger.info(f"Loading XTTS-v2 to {DEVICE}...")
+        logger.info(f"Loading Swedish VITS to {DEVICE}...")
         try:
-            tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(DEVICE)
+            # VITS är snabbare och har bättre svenskt uttal än XTTS hackat till engelska
+            tts = TTS(TTS_MODEL_NAME).to(DEVICE)
         except Exception as e:
             logger.error(f"Failed to load TTS: {e}")
             raise HTTPException(status_code=500, detail="TTS Model loading failed")
@@ -57,16 +59,14 @@ def remove_file(path: str):
         os.remove(path)
 
 def clean_text_for_speech(text: str) -> str:
-    # Ta bort <think> block (DeepSeek-R1)
+    # Ta bort <think> block
     text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
-    # Ta bort asterisker och annat skräp
     text = text.replace("*", "").replace("_", "")
     text = re.sub(r'#+', '', text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
 def convert_to_mp3(wav_path: str, mp3_path: str, bitrate: str = "320k"):
-    """Konverterar WAV till MP3 i hög kvalitet med ffmpeg."""
     try:
         cmd = [
             "ffmpeg", "-y", "-i", wav_path,
@@ -86,32 +86,38 @@ async def health_check():
         "status": "online",
         "gpu_available": torch.cuda.is_available(),
         "tts_loaded": tts is not None,
+        "tts_model": TTS_MODEL_NAME,
         "ram_disk_ready": os.path.exists(RAM_DIR)
     }
+
+@app.get("/speakers")
+async def list_speakers():
+    tts_model = get_tts()
+    # VITS-modeller har oftast inga speakers eller bara en
+    try:
+        return {"speakers": tts_model.speakers or []}
+    except:
+        return {"speakers": []}
 
 @app.post("/generate")
 async def generate_text(query: Query):
     try:
-        # Ökad timeout till 180s för DeepSeek-R1 modeller
         async with httpx.AsyncClient(timeout=180.0) as client:
             payload = {
                 "model": query.model,
-                "prompt": f"Du är en hjälpsam assistent. Svara alltid på svenska. {query.prompt}",
+                "prompt": f"Du är en hjälpsam assistent. Svara alltid kort på svenska. {query.prompt}",
                 "stream": False
             }
             response = await client.post(OLLAMA_URL, json=payload)
             response.raise_for_status()
             result = response.json()
             return {"text": result["response"].strip()}
-    except httpx.ConnectError:
-        raise HTTPException(status_code=503, detail="Ollama server is not reachable on localhost:11434")
     except Exception as e:
         logger.error(f"Ollama error: {e}")
         raise HTTPException(status_code=500, detail=f"Ollama error: {str(e)}")
 
 @app.post("/process")
 async def full_process(query: Query, background_tasks: BackgroundTasks):
-    # 1. Generera Text via Ollama
     gen_res = await generate_text(query)
     text_response = gen_res["text"]
     cleaned_text = clean_text_for_speech(text_response)
@@ -119,30 +125,22 @@ async def full_process(query: Query, background_tasks: BackgroundTasks):
     if not cleaned_text:
         raise HTTPException(status_code=500, detail="Empty text response from LLM")
 
-    # 2. Generera WAV i RAM
     tts_model = get_tts()
     file_id = str(uuid.uuid4())
     wav_path = os.path.join(RAM_DIR, f"{file_id}.wav")
     mp3_path = os.path.join(RAM_DIR, f"{file_id}.mp3")
     
     try:
-        # XTTS-v2 genererar WAV
         await run_in_threadpool(
             tts_model.tts_to_file,
             text=cleaned_text,
-            speaker=query.speaker,
-            language="sv",
             file_path=wav_path
         )
         
-        # 3. Konvertera till MP3 i RAM
         if not convert_to_mp3(wav_path, mp3_path, query.bitrate):
             raise HTTPException(status_code=500, detail="MP3 conversion failed")
 
-        # Rensa WAV direkt
         remove_file(wav_path)
-        
-        # 4. Returnera MP3 och städa efteråt
         background_tasks.add_task(remove_file, mp3_path)
         
         return FileResponse(
