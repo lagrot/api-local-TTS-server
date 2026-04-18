@@ -11,6 +11,8 @@ dependencies = [
     "pydantic>=2.6.0",
     "python-multipart>=0.0.9",
     "httpx",
+    "pytest",
+    "pytest-asyncio",
 ]
 
 [tool.uv]

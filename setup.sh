@@ -13,8 +13,8 @@ uv venv --python 3.10
 source .venv/bin/activate
 
 # 3. Install Essential Dependencies
-echo "Installing project dependencies (Piper + FastAPI)..."
-uv pip install fastapi uvicorn piper-tts httpx
+echo "Installing project dependencies (Piper + FastAPI + Testing)..."
+uv pip install fastapi uvicorn piper-tts httpx pytest pytest-asyncio
 
 # 4. Download High-Quality Swedish Piper Model (NST)
 # We use the 'nst' model which you shared - it's the Swedish standard
