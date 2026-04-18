@@ -1,8 +1,8 @@
 import os
 import re
 import uuid
-
 import torch
+import logging
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from llama_cpp import Llama
@@ -10,56 +10,82 @@ from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 from TTS.api import TTS
 
+# --- Setup Logging ---
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("amd-ai-api")
+
 # --- Konfiguration ---
 LLM_MODEL_PATH = "models/Meta-Llama-3-8B-Instruct.Q5_K_M.gguf"
 OUTPUT_DIR = "audio_out"
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-if not os.path.exists("models"):
-    os.makedirs("models")
+# Check for ROCm/CUDA
+if torch.cuda.is_available():
+    DEVICE = "cuda"
+    logger.info(f"GPU Detected: {torch.cuda.get_device_name(0)}")
+else:
+    DEVICE = "cpu"
+    logger.warning("No GPU detected, falling back to CPU. Performance will be slow.")
 
-if not os.path.exists(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
+# Ensure directories exist
+os.makedirs("models", exist_ok=True)
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 app = FastAPI(title="AMD AI Voice API - Llama 3 & XTTS-v2")
-app.state.output_dir = OUTPUT_DIR
 
-if not os.path.exists(LLM_MODEL_PATH):
-    print(f"Warning: Model not found at {LLM_MODEL_PATH}. Ensure the file exists in the models/ directory.")
-
-# --- Initiera LLM ---
-print("Laddar Llama-3 till GPU (Vulkan)...")
-llm = Llama(
-    model_path=LLM_MODEL_PATH,
-    n_gpu_layers=-1, # Skicka allt till 6700 XT
-    n_ctx=2048,
-    verbose=False
-)
-
-# --- Initiera TTS (XTTS-v2) ---
-def get_tts():
-    print(f"Laddar XTTS-v2 till {DEVICE}...")
-    return TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(DEVICE)
-
-# tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(DEVICE)
+# --- Global State ---
+llm = None
 tts = None
 
 class Query(BaseModel):
     prompt: str = Field(..., json_schema_extra={"example": "Berätta en kort historia om en riddare."})
+
+def init_llm():
+    if not os.path.exists(LLM_MODEL_PATH):
+        logger.error(f"Model not found at {LLM_MODEL_PATH}")
+        return None
+    
+    try:
+        logger.info(f"Loading Llama-3 from {LLM_MODEL_PATH}...")
+        return Llama(
+            model_path=LLM_MODEL_PATH,
+            n_gpu_layers=-1,  # Offload all layers to GPU (6700 XT has 12GB VRAM)
+            n_ctx=2048,
+            verbose=False
+        )
+    except Exception as e:
+        logger.error(f"Failed to load LLM: {e}")
+        return None
+
+def get_tts():
+    global tts
+    if tts is None:
+        logger.info(f"Loading XTTS-v2 to {DEVICE}...")
+        try:
+            # XTTS-v2 model will download automatically on first run if not present
+            tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(DEVICE)
+        except Exception as e:
+            logger.error(f"Failed to load TTS: {e}")
+            raise HTTPException(status_code=500, detail="TTS Model loading failed")
+    return tts
+
+@app.on_event("startup")
+async def startup_event():
+    global llm
+    llm = init_llm()
 
 def remove_file(path: str):
     if os.path.exists(path):
         os.remove(path)
 
 def clean_text_for_speech(text: str) -> str:
-    """Tar bort asterisker och andra specialtecken."""
+    """Removes markdown artifacts and extra spaces."""
     text = text.replace("*", "")
     text = re.sub(r'#+', '', text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
 def format_llama3_prompt(user_prompt: str) -> str:
-    """Formatterar enligt Llama 3 Chat Template."""
+    """Formats using Llama 3 Chat Template."""
     system_prompt = "Du är en hjälpsam assistent. Svara alltid kortfattat och på svenska."
     return (
         f"<|start_header_id|>system<|end_header_id|>\n\n"
@@ -69,8 +95,21 @@ def format_llama3_prompt(user_prompt: str) -> str:
         f"<|start_header_id|>assistant<|end_header_id|>\n\n"
     )
 
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "online",
+        "gpu_available": torch.cuda.is_available(),
+        "gpu_device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None",
+        "llm_loaded": llm is not None,
+        "tts_loaded": tts is not None
+    }
+
 @app.post("/generate")
 async def generate_text(query: Query):
+    if llm is None:
+        raise HTTPException(status_code=503, detail="LLM not loaded. Check if model file exists in models/")
+    
     try:
         formatted_prompt = format_llama3_prompt(query.prompt)
         response = await run_in_threadpool(
@@ -82,21 +121,19 @@ async def generate_text(query: Query):
         )
         return {"text": response["choices"][0]["text"].strip()}
     except Exception as e:
+        logger.error(f"Generation error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/speak")
 async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
-    global tts
-    if tts is None:
-        tts = get_tts()
+    tts_model = get_tts()
     try:
         file_id = str(uuid.uuid4())
-        file_name = f"speech_{file_id}.wav"
-        file_path = os.path.join(OUTPUT_DIR, file_name)
+        file_path = os.path.join(OUTPUT_DIR, f"speech_{file_id}.wav")
         cleaned_text = clean_text_for_speech(query.prompt)
 
         await run_in_threadpool(
-            tts.tts_to_file,
+            tts_model.tts_to_file,
             text=cleaned_text,
             speaker="Daisy",
             language="sv",
@@ -105,18 +142,36 @@ async def text_to_speech(query: Query, background_tasks: BackgroundTasks):
         background_tasks.add_task(remove_file, file_path)
         return FileResponse(file_path, media_type="audio/wav")
     except Exception as e:
+        logger.error(f"TTS error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/process")
-async def full_process(query: Query):
-    res = await generate_text(query)
-    # Rensa texten innan TTS
-    # Notera: Här behöver vi simulera eller hantera hur ljudfilen returneras/hämtas
-    # För enkelhetens skull, returnerar vi texten och indikerar att tal genereras
-    return {
-        "text": res["text"],
-        "audio_info": "Använd /speak med den renade texten för att få ljudfilen"
-    }
+async def full_process(query: Query, background_tasks: BackgroundTasks):
+    # 1. Generate Text
+    gen_res = await generate_text(query)
+    text_response = gen_res["text"]
+    
+    # 2. Generate Speech from generated text
+    tts_model = get_tts()
+    file_id = str(uuid.uuid4())
+    file_path = os.path.join(OUTPUT_DIR, f"full_{file_id}.wav")
+    
+    await run_in_threadpool(
+        tts_model.tts_to_file,
+        text=clean_text_for_speech(text_response),
+        speaker="Daisy",
+        language="sv",
+        file_path=file_path
+    )
+    
+    background_tasks.add_task(remove_file, file_path)
+    
+    # Return audio file and include the text in a custom header
+    return FileResponse(
+        file_path, 
+        media_type="audio/wav", 
+        headers={"X-Generated-Text": text_response.encode('utf-8').decode('latin-1')} 
+    )
 
 if __name__ == "__main__":
     import uvicorn
