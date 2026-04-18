@@ -36,3 +36,6 @@
 1. Kod commitad med konventionell commit-message.
 2. `verify_*.py` testexekvering är grön.
 3. QA Engineer har verifierat funktionaliteten.
+
+## Lärdomar & Gotchas
+- [2026-04-18] Python 3.13 saknar `audioop` (inbyggt), vilket bryter `pydub`. Använd `ffmpeg` via `subprocess` för ljudkonvertering; det är snabbare och kräver inga extra Python-beroenden.

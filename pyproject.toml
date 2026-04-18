@@ -2,6 +2,7 @@
 name = "api-local-tts-clean"
 version = "0.1.0"
 dependencies = [
+    "pytest",
     "fastapi",
     "uvicorn",
     "torch",

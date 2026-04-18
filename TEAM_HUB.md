@@ -50,3 +50,10 @@
 **Observation:** Samtliga tickets (1-5) är genomförda och verifierade med full testsvit.  
 **Beslut / Förslag:** Sprint 1 stängs. Redo för nästa sprint.  
 **Action:** Uppdaterat backlog och minne.  
+
+---
+### [2026-04-18 15:00] [LEAD ENGINEER] → [ALLA]
+**Status:** Ticket #4 (TTS Endpoint) uppdaterad till MP3-streaming via FFmpeg.  
+**Observation:** `pydub` var inkompatibelt med Python 3.13. FFmpeg löser detta stabilt.  
+**Beslut / Förslag:** Sprint 1 avslutad efter framgångsrik E2E-verifiering.  
+**Action:** README och minne uppdaterat.
