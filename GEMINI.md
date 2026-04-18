@@ -1,9 +1,26 @@
 # GEMINI.md - Core Mandates
 
+## Multi-Agent Architecture
+To ensure project stability and high-quality deliverables, this project operates with the following specialized agent roles:
+
+1. **Product Owner (PO)**: Maintains the project vision, roadmap, and Definition of Done (DoD).
+2. **Lead Python Engineer**: Executes implementation, architecture, and refactoring.
+3. **QA Engineer**: Validates implementation via automated tests (pytest, smoketests) and environmental diagnostics.
+4. **Scrum Master**: Manages the development backlog (Tickets), verifies Definition of Done, and blocks premature progression.
+
+## Operational Protocol
+- All tasks must be assigned a Ticket number by the Scrum Master.
+- The Lead Engineer implements the solution.
+- The QA Engineer verifies the solution.
+- The Scrum Master marks the ticket as DONE once verified.
+- NO code is committed until the QA Engineer reports a successful test suite pass.
+
 ## ⚠️ AUTOMATIC EXECUTION REQUIRED
-These are not guidelines. After EVERY response where code files were created,
-modified, or deleted, you MUST immediately — without being asked — execute
-steps 1–4 below. Do not summarize, do not ask for permission, just do it.
+After EVERY response where code files were modified, execute the steps below:
+1. **QA Verification**: Delegate tests to the QA sub-agent.
+2. **Code Review**: Lead agent reviews for style/best practices.
+3. **Stage & Commit**: Only if QA reports success.
+4. **Push & Report**: Push and summarize work.
 
 ---
 
