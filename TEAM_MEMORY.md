@@ -165,3 +165,7 @@
 ## [2026-04-20] Ticket #27 & #29: Dokumentation & Lean-städning (KLAR)
 - Verifierat att 'librosa' är borttaget.
 - Uppdaterat 'README.md' och 'HARDWARE.md' för att reflektera den moderna Fish Speech (S2 Pro) arkitekturen och pre-flight kontroller.
+
+## [2026-04-20] Ticket #30.1: Fanny-profil loader (KLAR)
+- Implementerat stöd för förladdning av 'audio_in/fanny.pt' i 'FishSpeechLoader'.
+- API:et känner nu av reference_audio='fanny' och undviker onödig omkodning.
