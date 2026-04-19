@@ -144,3 +144,7 @@
 ## [2026-04-20] Ticket #28: Test-isolering (KLAR)
 - Implementerat tvingad CPU-användning i 'tests/conftest.py' via 'enforce_cpu' fixture.
 - Injicerat MagicMock för 'mms_loader' och 'fish_loader' för att förhindra tunga modell-laddningar vid enhetstester.
+
+## [2026-04-20] Pre-flight check implemented
+- Uppdaterat 'run_server.sh' med automatisk kontroll av 'HSA_OVERRIDE_GFX_VERSION' och GPU-tillgänglighet via Torch.
+- Fail-fast logik implementerad för att förhindra miljökorruption vid start.
