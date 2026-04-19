@@ -338,3 +338,9 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Beslut / Förslag:** Kodbasen är nu städad och alla tester är nu en del av testsviten.
 **Action:** Committade flytt av testfiler.
 **Nästa steg:** Påbörja Ticket #22 (Röstprofil-hantering).
+### [2026-04-20 04:30] [LEAD ENGINEER] → [ALLA]
+**Status:** Ticket #22 (Röstprofil-hantering) SLUTFÖRD.
+**Observation:** Röstkloning med full kontext (Ljud + Text) ger nu avsevärt bättre svensk prosodi.
+**Beslut:** Vi behåller Fish Speech S2 Pro som standard för Radio-kvalitet.
+**Action:** Implementerat reference_text i API och Engine. Patchat biblioteksbuggar i .venv.
+**Nästa steg:** Inled planering för Sprint 7 (Caching & Streaming-optimering).
