@@ -11,7 +11,9 @@ from src.llm_engine import OllamaClient
 from src.audio_config import FFMPEG_PARAMS
 
 # Konfigurera logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger("TTS-Server")
 
 app = FastAPI()
@@ -26,28 +28,35 @@ except ValueError as e:
 
 llm = OllamaClient()
 
+
 class ChatRequest(BaseModel):
     prompt: str
 
+
 class TTSRequest(BaseModel):
     text: str
+
 
 @app.get("/health")
 async def health():
     return {"status": "ok"}
 
+
 @app.post("/tts")
 async def tts(request: TTSRequest):
     return await generate_audio(request.text)
+
 
 @app.post("/tts_direct")
 async def tts_direct(request: TTSRequest):
     return await generate_audio(request.text)
 
+
 @app.post("/chat")
 async def chat(request: ChatRequest):
     text_response = await llm.generate_text(request.prompt)
     return await generate_audio(text_response)
+
 
 async def generate_audio(text: str):
     try:
@@ -62,10 +71,15 @@ async def generate_audio(text: str):
         wav_data = wav_buffer.read()
 
         process = await asyncio.create_subprocess_exec(
-            "ffmpeg", "-y", "-i", "pipe:0",
+            "ffmpeg",
+            "-y",
+            "-i",
+            "pipe:0",
             *FFMPEG_PARAMS,
             "pipe:1",
-            stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
         )
 
         async def stream_generator():
@@ -75,13 +89,14 @@ async def generate_audio(text: str):
                 process.stdin.close()
                 while True:
                     chunk = await process.stdout.read(4096)
-                    if not chunk: break
+                    if not chunk:
+                        break
                     yield chunk
-                
+
                 stderr_data = await process.stderr.read()
                 if stderr_data:
                     logger.debug(f"FFmpeg stderr: {stderr_data.decode()}")
-                
+
                 await process.wait()
             finally:
                 if process.returncode is None:
@@ -91,7 +106,7 @@ async def generate_audio(text: str):
                         await asyncio.wait_for(process.wait(), timeout=2.0)
                     except asyncio.TimeoutError:
                         process.kill()
-        
+
         return StreamingResponse(stream_generator(), media_type="audio/mpeg")
     except Exception as e:
         logger.error(f"Error during audio generation: {e}")
