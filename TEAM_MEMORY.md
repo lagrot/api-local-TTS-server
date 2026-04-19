@@ -153,3 +153,7 @@
 - Flyttat utility-skript till 'tools/'.
 - Rensat bort redundant 'egg-info' skräp.
 - Projektstrukturen följer nu en professionell, moduluppbyggd standard.
+
+## [2026-04-20] Ticket #25: Mock-fix (KLAR)
+- Refaktorerat 'tests/unit/test_tts_factory_mock.py' till att använda 'mocker.patch' för att injicera mock-loaders.
+- Testet körs nu oberoende av tunga modell-filer, vilket garanterar stabilitet och hastighet.
