@@ -71,6 +71,8 @@ class FishSpeechLoader(BaseTTSLoader):
             if os.path.exists(profile_path):
                 logger.info("Loading pre-computed Fanny profile...")
                 prompt_tokens = torch.load(profile_path, map_location="cpu")
+            else:
+                logger.warning(f"Fanny profile not found at {profile_path}, falling back to default voice.")
         elif reference_audio and os.path.exists(reference_audio):
             prompt_tokens = self.get_reference_tokens(reference_audio)
         
