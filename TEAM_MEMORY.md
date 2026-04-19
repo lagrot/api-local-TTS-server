@@ -126,3 +126,5 @@
   2. Rad 544: Ändrat 'bool(prompt_tokens)' till 'prompt_tokens is not None'
 - [2026-04-20] Röstkloning kräver både .wav och transkription (reference_text) för optimal svensk tonalitet.
 - [2026-04-20] Använd soundfile + torchaudio.functional.resample istället för torchaudio.load för att undvika torchcodec-beroendet.
+**[SYSTEM_MEMORY_UPDATE]**
+- [2026-04-20] Conftest.py tvingar nu  för att förhindra GPU-minneskrascher under testkörning.
