@@ -59,6 +59,20 @@ class PiperTTSLoader(BaseTTSLoader):
         sr, audio = wavfile.read(wav_buffer)
         return audio.astype('float32') / 32767.0
 
+class FishSpeechLoader(BaseTTSLoader):
+    def __init__(self):
+        super().__init__()
+        # Detta är en förenklad implementation för att verifiera att vi kan ladda motorn.
+        # En fullständig implementation kräver en Llama-queue.
+        print(f"QA: {self.__class__.__name__} initierad på {self.device}")
+        
+    def generate(self, text, **kwargs):
+        import numpy as np
+        # Placeholder för FishSpeech-generering (kräver konfigurerad LLAMA-motor)
+        # Vi kommer att bygga ut denna i nästa steg när vi vet att arkitekturen är stabil.
+        print(f"QA: FishSpeech genererar ljud för text: {text}")
+        return np.zeros((22050,), dtype='float32')
+
 class TTSLoaderFactory:
     @staticmethod
     def get_loader(model_type="mms"):
@@ -68,5 +82,7 @@ class TTSLoaderFactory:
             return SileroTTSLoader()
         elif model_type == "piper":
             return PiperTTSLoader()
+        elif model_type == "fish":
+            return FishSpeechLoader()
         else:
             raise ValueError(f"Unknown model type: {model_type}")
