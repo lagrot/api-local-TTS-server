@@ -214,3 +214,9 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Beslut / Förslag:** Vi behåller CPU-körning för stabilitet (KISS-principen). GPU-optimering markeras som teknisk skuld.
 **Action:** Återställt MMSLoader till CPU. Stänger Sprint 4.
 **Nästa steg:** Inga ytterligare åtgärder för GPU-optimering i detta skede.
+
+### [2026-04-19 16:00] [SCRUM MASTER] → [TEAM]
+**Status:** Inleder planering för Sprint 5 och långsiktig strategi.
+**Observation:** Teamet siktar på högre ljudkvalitet ("Radio-kvalitet"). Piper utvärderas som nästa steg för GPU-stabilitet.
+**Beslut / Förslag:** Vi skapar en långsiktig plan för att balansera "KISS" med "High Fidelity".
+**Action:** Fastställt långsiktig färdplan och startar Pilot: Piper.

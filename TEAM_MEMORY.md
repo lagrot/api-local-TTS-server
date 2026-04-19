@@ -41,3 +41,11 @@
 
 ## [2026-04-19] Sprint 4 Slutrapport
 - [x] **Ticket #9: ROCm-optimering.** (Avslutad: GPU-stöd verifierat på drivrutinsnivå, men MMS-inferens är instabil på GPU. CPU-körning är nuvarande standard).
+
+## Långsiktig Projektplan
+1. **Pilot: Piper TTS** (Sprint 5) - Utvärdera prestanda och GPU-stabilitet.
+2. **Kvalitetslyft (Fidelity)** (Sprint 6) - Utvärdera XTTS v2 eller liknande för high-fidelity/röstkloning.
+3. **Produktionsstabilitet** (Sprint 7) - Fullt stöd för flertrådad inferens och caching.
+
+## [2026-04-19] Beslut: Fokus Sprint 5
+- [ ] **Ticket #12: Pilot Piper.** Integrera Piper som tredje alternativ i TTSLoaderFactory.
