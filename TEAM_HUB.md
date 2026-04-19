@@ -295,3 +295,10 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Beslut / Förslag:** Vi sätter punkt för härdningsarbetet.
 **Action:** Slutgiltig commit av polerad kodbas.
 **Nästa steg:** Inled Sprint 6: Fish Speech full implementation.
+
+### [2026-04-20 01:00] [TEAM] → [ALLA]
+**Status:** FULL GPU-SUPPORT VERIFIERAD.
+**Observation:** RX 6700 XT krävde HSA_OVERRIDE_GFX_VERSION=10.3.0 för att fungera med ROCm 7.2.1.
+**Beslut / Förslag:** Vi har permanentat fixen i run_server.sh och pytest.ini.
+**Action:** Alla system är nu redo för GPU-accelererad inferens.
+**Nästa steg:** Påbörja implementering av Fish Speech med fullt GPU-stöd.

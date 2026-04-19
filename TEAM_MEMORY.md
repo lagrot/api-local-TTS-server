@@ -107,3 +107,7 @@
 - [x] **Kodkvalitet:** Ruff linting och formatering är nu felfri.
 - [x] **Städning:** Gammal test-cache och redundanta filer borttagna.
 - [x] **Logik:** Imports och asynkronitet korrigerad enligt best practice.
+
+## [2026-04-20] GPU Genombrott
+- [x] **Ticket #9: ROCm-optimering.** (KLAR: Full matris-multiplikation verifierad på GPU med GFX override).
+- [x] **Hårdvarukonfiguration:** RX 6700 XT (gfx1031) fungerar nu stabilt som gfx1030.
