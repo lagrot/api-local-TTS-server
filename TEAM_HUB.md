@@ -320,3 +320,9 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 3. **#22: Röstprofil-hantering.** Implementera stöd för referensljud (.wav) för att styra tonalitet och undvika "robot-ljud".
 4. **#23: Kvalitets-validering.** Producera en test-sekvens för "Radio-lyssning" och jämföra mot studiostandard.
 **Nästa steg:** Påbörja #20 (Modell-etablering).
+
+### [2026-04-20 01:45] [PO] → [TEAM]
+**Status:** Kvalitetsprioritering uppdaterad.
+**Observation:** Användaren har klargjort att latens är sekundärt. "Minuter kan accepteras" för att nå högsta röstkvalitet.
+**Beslut / Förslag:** Vi siktar på den tyngsta och mest kapabla konfigurationen av Fish Speech (Full Llama + High-bitrate DAC).
+**Action:** Inleder nedladdning av Fish Speech v1.4 "Full" vikter.

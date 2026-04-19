@@ -1,7 +1,7 @@
 import logging
 import os
 import torch
-from piper import PiperVoice
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -28,35 +28,79 @@ class MMSLoader(BaseTTSLoader):
         return output.waveform[0].cpu().numpy()
 
 
-class PiperTTSLoader(BaseTTSLoader):
-    def __init__(self, model_path="models/sv_SE-nst-medium.onnx"):
-        super().__init__()
-        self.sampling_rate = 22050
-        if not os.path.isfile(model_path):
-            raise FileNotFoundError(f"Piper modell saknas: {model_path}")
-        self.voice = PiperVoice.load(model_path)
-
-    def generate(self, text, **kwargs):
-        import io
-        import wave
-        import scipy.io.wavfile as wavfile
-
-        wav_buffer = io.BytesIO()
-        with wave.open(wav_buffer, "wb") as wav_file:
-            self.voice.synthesize_wav(text, wav_file)
-        wav_buffer.seek(0)
-        sr, audio = wavfile.read(wav_buffer)
-        return audio.astype("float32") / 32767.0
-
-
 class FishSpeechLoader(BaseTTSLoader):
-    def __init__(self):
+    def __init__(self, model_dir="models/fish-speech-s2-pro"):
         super().__init__()
-        self.sampling_rate = 22050
-        logger.info(f" {self.__class__.__name__} initierad på {self.device}")
+        # S2 Pro initialization with split device strategy to fit in 12GB VRAM
+        self.model_dir = model_dir
+        self.sampling_rate = 44100  # Default for S2 Pro
+        
+        # 1. Load Text-to-Semantic (Llama) on GPU
+        logger.info("Initializing Fish Speech S2 Pro T2S on GPU...")
+        from fish_speech.models.text2semantic.llama import DualARTransformer
+        
+        t2s_precision = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else torch.float16
+        self.t2s_model = DualARTransformer.from_pretrained(model_dir, load_weights=True)
+        # Limit context window to save VRAM (KV Cache is huge at 32k)
+        # 4096 is enough for short snippets and fits in 12GB
+        self.t2s_model.config.max_seq_len = 4096
+        self.t2s_model.to(device=self.device, dtype=t2s_precision)
+        self.t2s_model.eval()
+        
+        # 2. Load DAC (Codec) on CPU to save VRAM
+        logger.info("Initializing Fish Speech S2 Pro DAC on CPU...")
+        from fish_speech.models.dac.inference import load_model
+        codec_path = os.path.join(model_dir, "codec.pth")
+        self.dac_model = load_model("modded_dac_vq", codec_path, device="cpu")
+        self.dac_model.eval()
+        
+        # 3. Setup internal state
+        from fish_speech.models.text2semantic.inference import decode_one_token_ar
+        self.decode_one_token = decode_one_token_ar
+        
+        logger.info(f" {self.__class__.__name__} initialized (T2S: {self.device}, DAC: CPU)")
 
     def generate(self, text, **kwargs):
-        raise NotImplementedError("FishSpeech-motorn är under utveckling.")
+        from fish_speech.models.text2semantic.inference import generate_long
+        
+        logger.info(f"FishSpeech generating: {text[:50]}...")
+        
+        # Ensure model is in eval mode and correct device
+        self.t2s_model.eval()
+        
+        with torch.no_grad():
+            # Generate Semantic Tokens
+            # Using the established GPU-accelerated T2S model
+            responses = generate_long(
+                model=self.t2s_model,
+                device=self.device,
+                decode_one_token=self.decode_one_token,
+                text=text,
+                num_samples=1,
+                top_p=0.7,
+                temperature=0.7,
+            )
+            
+            all_codes = []
+            for resp in responses:
+                if resp.action == "sample":
+                    all_codes.append(resp.codes)
+            
+            if not all_codes:
+                logger.error("FishSpeech generated no codes")
+                return np.zeros((1,), dtype="float32")
+                
+            # Concatenate all codes along the sequence dimension (dim 2)
+            # codes shape is (N, 1+num_codebooks, T)
+            full_codes = torch.cat(all_codes, dim=2)
+            
+            # Decode to audio waveform using DAC on CPU as configured
+            z = full_codes.cpu()
+            audio_waveform = self.dac_model.decode(z)
+            
+            audio_np = audio_waveform.squeeze().cpu().numpy()
+            
+        return audio_np
 
 
 class TTSLoaderFactory:
@@ -64,8 +108,6 @@ class TTSLoaderFactory:
     def get_loader(model_type="mms"):
         if model_type == "mms":
             return MMSLoader()
-        elif model_type == "piper":
-            return PiperTTSLoader()
         elif model_type == "fish":
             return FishSpeechLoader()
         else:
