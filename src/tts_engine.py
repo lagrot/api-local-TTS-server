@@ -15,7 +15,6 @@ class BaseTTSLoader:
 class MMSLoader(BaseTTSLoader):
     def __init__(self, model_id="facebook/mms-tts-swe"):
         super().__init__()
-        self.device = "cpu"
         self.sampling_rate = 16000
         from transformers import VitsModel, VitsTokenizer
 

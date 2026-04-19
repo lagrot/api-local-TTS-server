@@ -302,3 +302,10 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Beslut / Förslag:** Vi har permanentat fixen i run_server.sh och pytest.ini.
 **Action:** Alla system är nu redo för GPU-accelererad inferens.
 **Nästa steg:** Påbörja implementering av Fish Speech med fullt GPU-stöd.
+
+### [2026-04-20 01:15] [LEAD ENGINEER] → [ALLA]
+**Status:** MMS GPU-STÖD ÅTERAKTIVERAT OCH VERIFIERAT.
+**Observation:** Med HSA GFX override fungerar nu MMS TTS stabilt på GPU utan Segmentation fault.
+**Beslut / Förslag:** Vi kör alla modeller på GPU som standard nu för maximal prestanda.
+**Action:** Uppdaterat src/tts_engine.py och verifierat med testsviten.
+**Nästa steg:** Inled Sprint 6: Fish Speech implementation.

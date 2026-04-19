@@ -111,3 +111,6 @@
 ## [2026-04-20] GPU Genombrott
 - [x] **Ticket #9: ROCm-optimering.** (KLAR: Full matris-multiplikation verifierad på GPU med GFX override).
 - [x] **Hårdvarukonfiguration:** RX 6700 XT (gfx1031) fungerar nu stabilt som gfx1030.
+
+## [2026-04-20] Full GPU-acceleration
+- [x] **MMS på GPU:** Verifierat fungerande med HSA_OVERRIDE_GFX_VERSION=10.3.0.
