@@ -140,3 +140,7 @@
 - Testsviten maskerade detta genom att tvinga CPU-fallback i conftest.py.
 - Åtgärd: Genomfört 'Operation Clean Slate' (fullständig rensning av .venv/ och uv.lock, samt låsning till lokala ROCm-hjul i pyproject.toml).
 - Projektet är nu återställt till en stabil, GPU-native AMD-miljö.
+
+## [2026-04-20] Ticket #28: Test-isolering (KLAR)
+- Implementerat tvingad CPU-användning i 'tests/conftest.py' via 'enforce_cpu' fixture.
+- Injicerat MagicMock för 'mms_loader' och 'fish_loader' för att förhindra tunga modell-laddningar vid enhetstester.
