@@ -51,18 +51,26 @@ async def tts(request: TTSRequest):
 @app.post("/tts_direct")
 async def tts_direct(request: TTSRequest):
     return await generate_audio(request.text, request.reference_audio)
-
+class ChatRequest(BaseModel):
+    prompt: str
+    reference_audio: str = None
+    reference_text: str = None
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
     text_response = await llm.generate_text(request.prompt)
-    return await generate_audio(text_response)
+    return await generate_audio(
+        text_response, request.reference_audio, request.reference_text
+    )
 
-
-async def generate_audio(text: str, reference_audio: str = None):
+async def generate_audio(
+    text: str, reference_audio: str = None, reference_text: str = None
+):
     try:
         logger.info(f"Generating audio for text: {text[:50]}...")
-        audio = loader.generate(text, reference_audio=reference_audio)
+        audio = loader.generate(
+            text, reference_audio=reference_audio, reference_text=reference_text
+        )
         if audio.dtype == "float32":
             audio = (audio * 32767).astype("int16")
 
