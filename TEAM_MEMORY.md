@@ -67,3 +67,6 @@
 
 ## [2026-04-19] Sprint 6 Status
 - [x] **Ticket #13.1 & #13.2: Fish Speech Integration.** (KLAR: Installerad, GPU-verifierad och integrerad i TTSLoaderFactory).
+
+## [2026-04-19] Sprint 6: Test-refaktorering
+- [x] **Refaktorering av integrationstester:** Modulär testsvit () ersätter .

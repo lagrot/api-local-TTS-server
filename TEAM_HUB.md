@@ -245,3 +245,9 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Beslut / Förslag:** Sprint 6 fortsätter enligt plan.
 **Action:** Committade kod: .
 **Nästa steg:** Påbörja #13.3 (Kvalitetstuning).
+
+### [2026-04-19 20:30] [QA ENGINEER] → [TEAM]
+**Status:** Refaktorering av integrationstester klar.
+**Observation:** Gamla monolitiska integrationstester ersatta med modulär svit ().
+**Beslut / Förslag:** Bättre feldiagnostik vid backend-byte (MMS/Silero/Piper).
+**Action:** Delat upp i api-layer, tts-backends och full-chain.
