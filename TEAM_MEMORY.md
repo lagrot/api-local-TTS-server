@@ -108,9 +108,10 @@
 - [x] **Städning:** Gammal test-cache och redundanta filer borttagna.
 - [x] **Logik:** Imports och asynkronitet korrigerad enligt best practice.
 
-## [2026-04-20] GPU Genombrott
-- [x] **Ticket #9: ROCm-optimering.** (KLAR: Full matris-multiplikation verifierad på GPU med GFX override).
-- [x] **Hårdvarukonfiguration:** RX 6700 XT (gfx1031) fungerar nu stabilt som gfx1030.
+## [2026-04-20] GPU-status (Experimentell)
+- GPU-support via ROCm (RX 6700 XT) är verifierad och fungerande, men kräver `HSA_OVERRIDE_GFX_VERSION=10.3.0`.
+- Betraktas som experimentell: Segmentation faults kan förekomma vid hög belastning.
+- Testsviten körs som standard på CPU för att garantera stabilitet i CI-miljö.
 
 ## [2026-04-20] Full GPU-acceleration
 - [x] **MMS på GPU:** Verifierat fungerande med HSA_OVERRIDE_GFX_VERSION=10.3.0.

@@ -10,7 +10,6 @@ dependencies = [
     "pytest-asyncio",
     "pytest-mock",
     "httpx",
-    "piper-tts",
     "fish-speech",
     "pyaudio",
     "torch",
