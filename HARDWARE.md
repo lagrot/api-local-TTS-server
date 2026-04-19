@@ -1,25 +1,13 @@
-# Hardware Inventory & System Layout
+# Hardware & ROCm Configuration
 
-## Compute Resources
-- **CPU:** AMD Ryzen 5 5600X (6-Core)
-- **RAM:** 31 GiB
-- **GPU:** AMD Radeon RX 6700 XT (12 GB VRAM)
-  - **Driver/Framework:** Navi 22 (ROCm-stöd tillgängligt för framtida optimering)
+## Hårdvarukrav
+- **GPU**: AMD Radeon RX 6700 XT.
+- **Drivrutiner**: ROCm 7.2.1.
+- **Miljövariabel**: Kräver `HSA_OVERRIDE_GFX_VERSION=10.3.0` för att mappas korrekt till GFX1030-arkitekturen.
 
-## Storage
-- **Primary:** 2x 1TB NVMe SSD (High-performance storage for model weights)
+## Pre-flight Check
+Servern kör en automatisk kontroll via `run_server.sh` vid start som verifierar:
+1. Att `HSA_OVERRIDE_GFX_VERSION` är korrekt satt.
+2. Att `torch.cuda.is_available()` returnerar True för AMD-GPU:n.
 
-## Optimization Strategy
-- **Phase 1 (Current):** CPU-based inference (Stability & Reliability).
-- **Phase 2 (Future):** Enable ROCm acceleration via `setup_rocm.sh` to utilize 12GB VRAM.
-
-## System Dependencies
-- **System Libraries:**
-  -  (för MP3-transcoding)
-  -  (för audio-stream-hantering via PyAudio/FishSpeech)
-- **Frameworks:**
-  -  (Kräver AMD GPU-stöd i OS)
-
-## GPU Specific Configuration
-- **Architecture:** gfx1031 (RX 6700 XT)
-- **ROCm Compatibility:** Requires `export HSA_OVERRIDE_GFX_VERSION=10.3.0` to function with PyTorch/ROCm.
+Vid fel avbryts startprocessen omedelbart för att förhindra körning på CPU (vilket är långsamt) eller systemkrascher.
