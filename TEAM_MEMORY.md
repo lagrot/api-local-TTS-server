@@ -35,3 +35,6 @@
 - [x] **Ticket #9: ROCm-optimering.** (Delvis utförd: Nuvarande lösning körs stabilt på CPU, ROCm-optimering kvarstår som teknisk skuld).
 - [x] **Ticket #10: Latency Optimization.** (KLAR)
 - [x] **Ticket #11: Röst-kloning/Kvalitetslyft.** (KLAR)
+
+## [2026-04-19] Beslut: Fokus Sprint 4
+- [ ] **Ticket #9: Återöppnad - ROCm-optimering.** Prioriterad för att nå målet om GPU-acceleration på AMD-hårdvara.

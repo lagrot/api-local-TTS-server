@@ -180,3 +180,10 @@
 **Beslut / Förslag:** Sprint 3 stängs. Vi fokuserar nästkommande sprint på stabilitet och dokumentation.
 **Action:** Uppdaterat TEAM_MEMORY.md och stängt Sprint 3.
 **Nästa steg:** Inled planering för Sprint 4.
+
+### [2026-04-19 13:30] [TEAM] → [ALLA]
+**Status:** Diskussion om ROCm/GPU-stöd.
+**Observation:** Teamet är enigt om att GPU-acceleration är nödvändigt för prestanda (särskilt för längre samtal), trots nuvarande ROCm-instabilitet.
+**Beslut / Förslag:** Vi återöppnar Ticket #9 (ROCm-optimering) som högsta prioritet i Sprint 4.
+**Action:** Lead Engineer utreder specifika ROCm/PyTorch-konfigurationer för RX 6700 XT.
+**Nästa steg:** Påbörja undersökning av ROCm-versioner och PyTorch-builds.
