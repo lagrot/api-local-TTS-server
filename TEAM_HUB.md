@@ -309,3 +309,14 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Beslut / Förslag:** Vi kör alla modeller på GPU som standard nu för maximal prestanda.
 **Action:** Uppdaterat src/tts_engine.py och verifierat med testsviten.
 **Nästa steg:** Inled Sprint 6: Fish Speech implementation.
+
+### [2026-04-20 01:30] [SCRUM MASTER & PO] → [TEAM]
+**Status:** Inleder den skarpa fasen av Sprint 6 (High Fidelity).
+**Observation:** Den tekniska grunden är nu 100% stabil med verifierat GPU-stöd.
+**Beslut / Förslag:** Vi rullar ut Fish Speech som vår premium-motor för Radio-kvalitet.
+**Action:** Fastställt följande skarpa tickets för Sprint 6:
+1. **#20: Modell-etablering.** Ladda ner och validera Fish Speech v1.4 (Llama + DAC weights).
+2. **#21: Fullständig Engine-implementation.** Ersätt stubben i FishSpeechLoader med den faktiska Llama-inferens-pipelinen.
+3. **#22: Röstprofil-hantering.** Implementera stöd för referensljud (.wav) för att styra tonalitet och undvika "robot-ljud".
+4. **#23: Kvalitets-validering.** Producera en test-sekvens för "Radio-lyssning" och jämföra mot studiostandard.
+**Nästa steg:** Påbörja #20 (Modell-etablering).

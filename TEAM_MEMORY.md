@@ -114,3 +114,9 @@
 
 ## [2026-04-20] Full GPU-acceleration
 - [x] **MMS på GPU:** Verifierat fungerande med HSA_OVERRIDE_GFX_VERSION=10.3.0.
+
+## [2026-04-20] Sprint 6: Fish Speech Implementation
+- [ ] **Ticket #20: Fish Speech Modell-etablering.**
+- [ ] **Ticket #21: FishSpeechLoader Skarp Implementation.**
+- [ ] **Ticket #22: Tonalitet & Röstkloning (Reference support).**
+- [ ] **Ticket #23: Radio Quality Benchmark.**
