@@ -19,3 +19,7 @@
   -  (för audio-stream-hantering via PyAudio/FishSpeech)
 - **Frameworks:**
   -  (Kräver AMD GPU-stöd i OS)
+
+## GPU Specific Configuration
+- **Architecture:** gfx1031 (RX 6700 XT)
+- **ROCm Compatibility:** Requires `export HSA_OVERRIDE_GFX_VERSION=10.3.0` to function with PyTorch/ROCm.
