@@ -11,6 +11,9 @@ class BaseTTSLoader:
 class MMSLoader(BaseTTSLoader):
     def __init__(self, model_id="facebook/mms-tts-swe"):
         super().__init__()
+        # Force CPU for MMS as ROCm/HIP is unstable for this model in our environment
+        self.device = "cpu"
+        print(f"QA: {self.__class__.__name__} tvingas till enhet: {self.device}")
         from transformers import VitsModel, VitsTokenizer
         self.tokenizer = VitsTokenizer.from_pretrained(model_id)
         self.model = VitsModel.from_pretrained(model_id).to(self.device)
