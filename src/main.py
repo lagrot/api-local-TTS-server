@@ -35,6 +35,7 @@ class ChatRequest(BaseModel):
 
 class TTSRequest(BaseModel):
     text: str
+    reference_audio: str = None
 
 
 @app.get("/health")
@@ -44,12 +45,12 @@ async def health():
 
 @app.post("/tts")
 async def tts(request: TTSRequest):
-    return await generate_audio(request.text)
+    return await generate_audio(request.text, request.reference_audio)
 
 
 @app.post("/tts_direct")
 async def tts_direct(request: TTSRequest):
-    return await generate_audio(request.text)
+    return await generate_audio(request.text, request.reference_audio)
 
 
 @app.post("/chat")
@@ -58,10 +59,10 @@ async def chat(request: ChatRequest):
     return await generate_audio(text_response)
 
 
-async def generate_audio(text: str):
+async def generate_audio(text: str, reference_audio: str = None):
     try:
         logger.info(f"Generating audio for text: {text[:50]}...")
-        audio = loader.generate(text)
+        audio = loader.generate(text, reference_audio=reference_audio)
         if audio.dtype == "float32":
             audio = (audio * 32767).astype("int16")
 

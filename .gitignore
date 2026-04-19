@@ -12,6 +12,7 @@ __pycache__/
 
 # Data/Log
 audio_out/
+audio_in/
 models/
 *.egg-info/
 

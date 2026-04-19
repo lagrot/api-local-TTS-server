@@ -41,7 +41,7 @@ class FishSpeechLoader(BaseTTSLoader):
         
         t2s_precision = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else torch.float16
         self.t2s_model = DualARTransformer.from_pretrained(model_dir, load_weights=True)
-        # Limit context window to save VRAM (KV Cache is huge at 32k)
+        # Limit context window to save VRAM and increase speed (KV Cache is huge)
         # 4096 is enough for short snippets and fits in 12GB
         self.t2s_model.config.max_seq_len = 4096
         self.t2s_model.to(device=self.device, dtype=t2s_precision)
@@ -60,25 +60,59 @@ class FishSpeechLoader(BaseTTSLoader):
         
         logger.info(f" {self.__class__.__name__} initialized (T2S: {self.device}, DAC: CPU)")
 
-    def generate(self, text, **kwargs):
+    def get_reference_tokens(self, audio_path):
+        import soundfile as sf
+        from torchaudio.functional import resample
+        logger.info(f"Encoding reference audio via soundfile: {audio_path}")
+        
+        # 1. Läs in ljudet (Robust backend: soundfile)
+        wav, sr = sf.read(audio_path)
+        # Flytta till CPU eftersom dac_model är på CPU
+        wav = torch.from_numpy(wav).float().to("cpu")
+        
+        # Hantera stereo -> mono om det behövs
+        if wav.ndim > 1:
+            wav = wav.mean(dim=-1)
+            
+        # 2. Resample till modellens samplingrate (44.1kHz för S2 Pro)
+        wav = resample(wav, sr, self.dac_model.sample_rate)
+        
+        # 3. Koda till tokens med DAC-modellen (Samma logik som Fish Speech encode_audio)
+        model_dtype = next(self.dac_model.parameters()).dtype
+        audios = wav[None, None].to(dtype=model_dtype) # (1, 1, T)
+        audio_lengths = torch.tensor([len(wav)], device="cpu", dtype=torch.long)
+        
+        with torch.no_grad():
+            indices, feature_lengths = self.dac_model.encode(audios, audio_lengths)
+            
+        return indices[0, :, : feature_lengths[0]] # (num_codebooks, T)
+
+    def generate(self, text, reference_audio=None, reference_text=None, **kwargs):
         from fish_speech.models.text2semantic.inference import generate_long
         
         logger.info(f"FishSpeech generating: {text[:50]}...")
         
-        # Ensure model is in eval mode and correct device
+        # Setup conditioning if reference audio is provided
+        prompt_tokens = None
+        if reference_audio and os.path.exists(reference_audio):
+            prompt_tokens = self.get_reference_tokens(reference_audio)
+        
+        # Ensure model is in eval mode
         self.t2s_model.eval()
         
         with torch.no_grad():
-            # Generate Semantic Tokens
-            # Using the established GPU-accelerated T2S model
             responses = generate_long(
                 model=self.t2s_model,
                 device=self.device,
                 decode_one_token=self.decode_one_token,
                 text=text,
+                prompt_text=reference_text, # Add transcription of reference
+                prompt_tokens=prompt_tokens,
                 num_samples=1,
+                max_new_tokens=512,
                 top_p=0.7,
                 temperature=0.7,
+                compile=True,
             )
             
             all_codes = []
@@ -90,15 +124,20 @@ class FishSpeechLoader(BaseTTSLoader):
                 logger.error("FishSpeech generated no codes")
                 return np.zeros((1,), dtype="float32")
                 
-            # Concatenate all codes along the sequence dimension (dim 2)
-            # codes shape is (N, 1+num_codebooks, T)
-            full_codes = torch.cat(all_codes, dim=2)
+            # Concatenate all codes along the sequence dimension
+            first_code = all_codes[0]
+            cat_dim = 2 if first_code.ndim == 3 else 1
+            full_codes = torch.cat(all_codes, dim=cat_dim)
             
-            # Decode to audio waveform using DAC on CPU as configured
-            z = full_codes.cpu()
-            audio_waveform = self.dac_model.decode(z)
-            
-            audio_np = audio_waveform.squeeze().cpu().numpy()
+            # If 2D, add batch dim (1, num_codebooks, T)
+            if full_codes.ndim == 2:
+                full_codes = full_codes[None]
+                
+            # Convert indices to latent z and decode to audio
+            with torch.no_grad():
+                # Correct way for DAC in Fish Speech: from_indices already handles decode
+                audio_waveform = self.dac_model.from_indices(full_codes.cpu())
+                audio_np = audio_waveform.squeeze().cpu().numpy()
             
         return audio_np
 
