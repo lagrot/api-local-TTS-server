@@ -201,3 +201,6 @@
 ## [2026-04-20] Infrastruktur: Modelluppgradering
 - Raderade inkompatibel Qwen-modell (fish-speech-s2-pro).
 - Förberett för stabil modell v1.2 (Llama-baserad) för att återställa svensk röstkvalitet.
+
+## [2026-04-20] Ticket #41: E2E Smoke Test (KLAR)
+- Implementerat 'tests/e2e/test_fanny_smoke.py' som validerar ljudfiler > 10kB.
