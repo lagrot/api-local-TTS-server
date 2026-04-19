@@ -1,3 +1,4 @@
+import logging; logger = logging.getLogger(__name__)
 import os
 import torch
 from piper import PiperVoice
@@ -5,7 +6,7 @@ from piper import PiperVoice
 class BaseTTSLoader:
     def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"QA: {self.__class__.__name__} körs på enhet: {self.device}")
+        logger.info(f" {self.__class__.__name__} körs på enhet: {self.device}")
 
 class MMSLoader(BaseTTSLoader):
     def __init__(self, model_id="facebook/mms-tts-swe"):
@@ -45,7 +46,7 @@ class FishSpeechLoader(BaseTTSLoader):
     def __init__(self):
         super().__init__()
         self.sampling_rate = 22050
-        print(f"QA: {self.__class__.__name__} initierad på {self.device}")
+        logger.info(f" {self.__class__.__name__} initierad på {self.device}")
 
     def generate(self, text, **kwargs):
         raise NotImplementedError("FishSpeech-motorn är under utveckling.")

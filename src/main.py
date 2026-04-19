@@ -1,19 +1,27 @@
+import logging
+import io
+import asyncio
+import os
+import scipy.io.wavfile as wavfile
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from src.tts_engine import TTSLoaderFactory
 from src.llm_engine import OllamaClient
-import scipy.io.wavfile as wavfile
-import io
-import asyncio
-import os
+from src.audio_config import FFMPEG_PARAMS
+
+# Konfigurera logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("TTS-Server")
 
 app = FastAPI()
 
 model_type = os.getenv("TTS_MODEL_TYPE", "mms")
 try:
     loader = TTSLoaderFactory.get_loader(model_type)
+    logger.info(f"Loaded model: {model_type}")
 except ValueError as e:
+    logger.error(f"Failed to initialize TTS engine: {e}")
     raise RuntimeError(f"Failed to initialize TTS engine: {e}")
 
 llm = OllamaClient()
@@ -43,6 +51,7 @@ async def chat(request: ChatRequest):
 
 async def generate_audio(text: str):
     try:
+        logger.info(f"Generating audio for text: {text[:50]}...")
         audio = loader.generate(text)
         if audio.dtype == "float32":
             audio = (audio * 32767).astype("int16")
@@ -53,8 +62,8 @@ async def generate_audio(text: str):
         wav_data = wav_buffer.read()
 
         process = await asyncio.create_subprocess_exec(
-            "ffmpeg", "-y", "-i", "pipe:0", "-f", "mp3", "-ab", "320k", "-ar", "48000",
-            "-af", "aresample=48000:resampler=soxr,compand=attacks=0.01:points=-80/-900|-45/-15|-27/-9|0/-7|20/-5:gain=6",
+            "ffmpeg", "-y", "-i", "pipe:0",
+            *FFMPEG_PARAMS,
             "pipe:1",
             stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
@@ -68,16 +77,22 @@ async def generate_audio(text: str):
                     chunk = await process.stdout.read(4096)
                     if not chunk: break
                     yield chunk
+                
+                stderr_data = await process.stderr.read()
+                if stderr_data:
+                    logger.debug(f"FFmpeg stderr: {stderr_data.decode()}")
+                
                 await process.wait()
             finally:
-                # Säkerställ att processen dör
                 if process.returncode is None:
+                    logger.warning("Terminating hanging FFmpeg process")
+                    process.terminate()
                     try:
-                        process.terminate()
                         await asyncio.wait_for(process.wait(), timeout=2.0)
                     except asyncio.TimeoutError:
                         process.kill()
         
         return StreamingResponse(stream_generator(), media_type="audio/mpeg")
     except Exception as e:
+        logger.error(f"Error during audio generation: {e}")
         raise HTTPException(status_code=500, detail=str(e))
