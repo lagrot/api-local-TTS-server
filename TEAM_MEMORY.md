@@ -169,3 +169,7 @@
 ## [2026-04-20] Ticket #30.1: Fanny-profil loader (KLAR)
 - Implementerat stöd för förladdning av 'audio_in/fanny.pt' i 'FishSpeechLoader'.
 - API:et känner nu av reference_audio='fanny' och undviker onödig omkodning.
+
+## [2026-04-20] Ticket #30.2: Profil-fallback (KLAR)
+- Implementerat varning och fallback-logik i 'FishSpeechLoader' om 'fanny.pt' saknas.
+- Systemet är nu säkrat mot filfel vid röstprofil-laddning.
