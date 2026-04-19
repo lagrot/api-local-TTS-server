@@ -173,3 +173,7 @@
 ## [2026-04-20] Ticket #30.2: Profil-fallback (KLAR)
 - Implementerat varning och fallback-logik i 'FishSpeechLoader' om 'fanny.pt' saknas.
 - Systemet är nu säkrat mot filfel vid röstprofil-laddning.
+
+## [2026-04-20] Ticket #34: Timing-decorator (KLAR)
+- Implementerat 'src/utils.py' med 'time_it'-decorator.
+- Dekorerat 'FishSpeechLoader.generate' för att logga exakt inferens-tid i millisekunder.
