@@ -1,7 +1,6 @@
 import logging
 import os
 import torch
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -34,12 +33,10 @@ class FishSpeechLoader(BaseTTSLoader):
         self.model_dir = model_dir
         self.sampling_rate = 44100
         
-        logger.info(f"Initializing Fish Speech S2 Pro using init_model from {model_dir}...")
-        from fish_speech.models.text2semantic.inference import init_model
+        logger.info("Initializing Fish Speech S2 Pro using FishSpeechWrapper...")
+        from src.fish_wrapper import FishSpeechWrapper
         
-        self.model = init_model(model_dir, device=self.device, precision=torch.float16)
-        self.model.to(device=self.device)
-        self.model.eval()
+        self.wrapper = FishSpeechWrapper(model_dir, device=self.device)
         
         from fish_speech.models.dac.inference import load_model
         codec_path = os.path.join(model_dir, "codec.pth")
@@ -53,7 +50,8 @@ class FishSpeechLoader(BaseTTSLoader):
         from torchaudio.functional import resample
         wav, sr = sf.read(audio_path)
         wav = torch.from_numpy(wav).float().to("cpu")
-        if wav.ndim > 1: wav = wav.mean(dim=-1)
+        if wav.ndim > 1:
+            wav = wav.mean(dim=-1)
         wav = resample(wav, sr, self.dac_model.sample_rate)
         
         model_dtype = next(self.dac_model.parameters()).dtype
@@ -70,7 +68,7 @@ class FishSpeechLoader(BaseTTSLoader):
             prompt_tokens = self.get_reference_tokens(reference_audio)
         
         with torch.no_grad():
-            tokens = self.model.generate(
+            tokens = self.wrapper.generate(
                 text=text,
                 prompt_text=reference_text,
                 prompt_tokens=prompt_tokens,

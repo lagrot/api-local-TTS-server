@@ -1,6 +1,7 @@
 [project]
 name = "api-local-tts-clean"
 version = "0.1.0"
+requires-python = "==3.12.*"
 dependencies = [
     "fastapi",
     "uvicorn",
@@ -16,6 +17,7 @@ dependencies = [
     "torchaudio",
     "triton",
     "torchvision",
+    "ruff",
 ]
 
 [tool.uv]

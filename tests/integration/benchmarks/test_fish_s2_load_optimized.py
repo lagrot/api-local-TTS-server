@@ -1,7 +1,6 @@
 import torch
 import logging
 import os
-import time
 from fish_speech.models.text2semantic.llama import DualARTransformer
 from fish_speech.models.dac.inference import load_model
 
@@ -11,7 +10,7 @@ os.environ["HSA_OVERRIDE_GFX_VERSION"] = "10.3.0"
 
 model_dir = "models/fish-speech-s2-pro"
 
-print(f"QA: Testing Optimized Fish Speech S2 Pro load...")
+print("QA: Testing Optimized Fish Speech S2 Pro load...")
 
 try:
     # 1. Load T2S on GPU (BF16)

@@ -1,6 +1,5 @@
 import logging
 import os
-import torch
 import scipy.io.wavfile as wavfile
 from src.tts_engine import FishSpeechLoader
 

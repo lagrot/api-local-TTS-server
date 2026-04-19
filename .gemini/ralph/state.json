@@ -1,0 +1,8 @@
+{
+  "active": true,
+  "current_iteration": 1,
+  "max_iterations": 5,
+  "completion_promise": "DONE",
+  "original_prompt": "Använd pytest och ruff för att fixa projektet:\n1. Kör 'ruff check --fix .' och 'ruff format .'\n2. Kör 'pytest'\n3. Om testerna misslyckas, fixa koden och kör igen.\nSvara 'DONE' när allt är grönt.",
+  "started_at": "2026-04-19T11:50:02Z"
+}

@@ -1,7 +1,6 @@
 import torch
 import logging
 import os
-from fish_speech.models.text2semantic.inference import init_model
 from fish_speech.models.dac.inference import load_model
 
 logging.basicConfig(level=logging.INFO)
