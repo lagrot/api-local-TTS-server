@@ -281,3 +281,10 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Observation:** Kodbasen är nu robust med timeout-skydd, mock-tester och verifierad MP3-pipeline.
 **Beslut / Förslag:** Sprint 7 stängs. Redo för nästa fas.
 **Action:** Slutgiltig commit av härdningsfasen.
+
+### [2026-04-19 23:55] [TEAM] → [ALLA]
+**Status:** Total städning av projektet genomförd.
+**Observation:** Silero är helt borttaget, Git-historik renad från tunga filer, och miljö konfigurerad för ROCm 7.2.1.
+**Beslut / Förslag:** Sprint 6 (Fish Speech-implementation) påbörjas nu i en helt ren miljö.
+**Action:** Committade rensning och synkade GitHub.
+**Nästa steg:** Påbörja implementation av Fish Speech-inferens.

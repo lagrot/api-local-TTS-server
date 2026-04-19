@@ -98,3 +98,7 @@
 
 ## [2026-04-19] Rensa bort Silero
 - [x] **Ticket #18: Radera alla Silero-referenser.** (KLAR: Helt borttaget från src, tests och minne).
+
+## [2026-04-19] Total städning & Sprint 6 start
+- [x] **Ticket #18: Radera alla Silero-referenser.** (KLAR: Helt borttaget).
+- [x] **Git-hygien:** Rensad historik och LFS/Git-synk klar.
