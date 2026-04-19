@@ -89,3 +89,9 @@
 - [x] **Ticket #15: Dynamisk Loader.** (KLAR: Robust main.py).
 - [x] **Ticket #16: Dokumentation.** (KLAR: Systemberoenden i HARDWARE.md).
 - [x] **Ticket #17: FFmpeg-pipeline.** (KLAR: Asynkrona subprocesses med timeouts).
+
+## [2026-04-19] Sprint 7 Slutrapport
+- [x] **Ticket #14: Test-optimering.** (KLAR: conftest.py, Mock-tester).
+- [x] **Ticket #15: Dynamisk Loader.** (KLAR: robust main.py).
+- [x] **Ticket #16: Dokumentation.** (KLAR: HARDWARE.md).
+- [x] **Ticket #17: FFmpeg-pipeline.** (KLAR: Asynkron, timeout-skyddad, MP3-verifierad).
