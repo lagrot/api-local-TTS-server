@@ -193,3 +193,7 @@
 ## [2026-04-20] Infrastruktur-städning: Egg-info eliminerad (KLAR)
 - Rensat bort redundanta '.egg-info'-mappar från 'src/' och root.
 - Bekräftat att projektet nu följer en ren arkitektur utan bygg-artefakter i källkoden.
+
+## [2026-04-20] Ticket #37: Diagnostic (BLOCKERAD)
+- Diagnostik avbröts p.g.a. arkitektonisk inkompatibilitet mellan modell (Qwen) och bibliotek (Llama-stöd).
+- Beslut: Vi behöver en modell som matchar bibliotekets arkitektur eller en uppgradering av biblioteket.
