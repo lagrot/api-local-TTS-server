@@ -148,3 +148,8 @@
 ## [2026-04-20] Pre-flight check implemented
 - Uppdaterat 'run_server.sh' med automatisk kontroll av 'HSA_OVERRIDE_GFX_VERSION' och GPU-tillgänglighet via Torch.
 - Fail-fast logik implementerad för att förhindra miljökorruption vid start.
+
+## [2026-04-20] Infrastruktur-städning (KLAR)
+- Flyttat utility-skript till 'tools/'.
+- Rensat bort redundant 'egg-info' skräp.
+- Projektstrukturen följer nu en professionell, moduluppbyggd standard.
