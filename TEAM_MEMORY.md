@@ -134,3 +134,9 @@
 - GPU-support via ROCm (RX 6700 XT) är verifierad och fungerande, men kräver `HSA_OVERRIDE_GFX_VERSION=10.3.0`.
 - Betraktas som experimentell: Segmentation faults kan förekomma vid hög belastning.
 - Testsviten körs som standard på CPU för att garantera stabilitet i CI-miljö.
+
+## [2026-04-20] Post-Mortem: Miljökorruption
+- Vi identifierade att miljön blivit korrupt p.g.a. att standard PyPI-paket (CUDA-baserade) blandats med lokala AMD/ROCm-bibliotek, vilket skapade beroendekonflikter.
+- Testsviten maskerade detta genom att tvinga CPU-fallback i conftest.py.
+- Åtgärd: Genomfört 'Operation Clean Slate' (fullständig rensning av .venv/ och uv.lock, samt låsning till lokala ROCm-hjul i pyproject.toml).
+- Projektet är nu återställt till en stabil, GPU-native AMD-miljö.
