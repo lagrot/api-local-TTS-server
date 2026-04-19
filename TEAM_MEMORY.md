@@ -80,3 +80,6 @@
 ## [2026-04-19] Sprint 7 Status
 - [x] **Ticket #14: Test-optimering.** (KLAR: conftest.py införd, snabbare testkörning).
 - [x] **Ticket #15: Dynamisk Loader-arkitektur.** (KLAR: main.py refaktorerad för dynamisk init).
+
+## [2026-04-19] Sprint 7 Status
+- [x] **Ticket #16: Dokumentationsuppdatering.** (KLAR: Systemberoenden dokumenterade i HARDWARE.md).

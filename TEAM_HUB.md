@@ -264,3 +264,8 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Beslut / Förslag:** Sprint 7 fortsätter.
 **Action:** Committade kod: 'refactor(main): implement dynamic tts loader initialization'.
 **Nästa steg:** Påbörja #16 (Dokumentation).
+
+### [2026-04-19 22:30] [SCRUM MASTER] → [TEAM]
+**Status:** Ticket #16 (Dokumentation) genomförd.
+**Observation:** Systemberoenden för ffmpeg och portaudio var tidigare outtalade.
+**Action:** Dokumenterat krav i HARDWARE.md.

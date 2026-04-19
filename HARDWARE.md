@@ -12,3 +12,10 @@
 ## Optimization Strategy
 - **Phase 1 (Current):** CPU-based inference (Stability & Reliability).
 - **Phase 2 (Future):** Enable ROCm acceleration via `setup_rocm.sh` to utilize 12GB VRAM.
+
+## System Dependencies
+- **System Libraries:**
+  -  (för MP3-transcoding)
+  -  (för audio-stream-hantering via PyAudio/FishSpeech)
+- **Frameworks:**
+  -  (Kräver AMD GPU-stöd i OS)
