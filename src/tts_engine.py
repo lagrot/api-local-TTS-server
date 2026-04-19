@@ -26,20 +26,22 @@ class MMSLoader(BaseTTSLoader):
 
 from src.utils import time_it
 
+from src.inference_engine import QwenInferenceEngine
+
 class FishSpeechLoader(BaseTTSLoader):
     def __init__(self, model_dir="models/fish-speech-s2-pro"):
         super().__init__()
         self.model_dir = model_dir
         self.sampling_rate = 44100
         
-        logger.info("Initializing Fish Speech S2 Pro using FishSpeechWrapper...")
-        from src.fish_wrapper import FishSpeechWrapper
-        self.wrapper = FishSpeechWrapper(model_dir, device=self.device)
+        logger.info(f"Initializing Fish Speech S2 Pro using native QwenInferenceEngine...")
+        self.engine = QwenInferenceEngine(model_dir)
         
         from fish_speech.models.dac.inference import load_model
         codec_path = os.path.join(model_dir, "codec.pth")
         self.dac_model = load_model("modded_dac_vq", codec_path, device="cpu")
         self.dac_model.eval()
+        
         logger.info(f" {self.__class__.__name__} initialized on {self.device}")
 
     def get_reference_tokens(self, audio_path):
@@ -61,27 +63,16 @@ class FishSpeechLoader(BaseTTSLoader):
 
     @time_it
     def generate(self, text, reference_audio=None, reference_text=None, **kwargs):
-        prompt_tokens = None
-        if reference_audio == "fanny":
-            profile_path = "audio_in/fanny.pt"
-            if os.path.exists(profile_path):
-                logger.info("Loading pre-computed Fanny profile...")
-                prompt_tokens = torch.load(profile_path, map_location="cpu")
-            else:
-                logger.warning(f"Fanny profile not found at {profile_path}, falling back to default voice.")
-        elif reference_audio and os.path.exists(reference_audio):
-            prompt_tokens = self.get_reference_tokens(reference_audio)
+        # I den här versionen genererar vi semantik via vår Qwen-motor 
+        # och avkodar sedan med DAC.
+        # För enkelhetens skull, använd self.engine.generate(text) här
+        # (vi bygger vidare på att koppla tokens till DAC sen)
         
-        with torch.no_grad():
-            tokens = self.wrapper.generate(
-                text=text,
-                prompt_text=reference_text,
-                prompt_tokens=prompt_tokens,
-                top_p=0.7,
-                temperature=0.7,
-            )
-            audio_waveform = self.dac_model.from_indices(tokens.cpu())
-            return audio_waveform.squeeze().cpu().numpy()
+        tokens = self.engine.generate(text)
+        # Här behöver vi mappa token-output från Qwen till DAC-indices
+        # Men för att verifiera laddningen kör vi detta först:
+        logger.info(f"Inference complete: {text[:20]}...")
+        return np.zeros((1,), dtype="float32") # Placeholder för att verifiera modell-laddningen
 
 class TTSLoaderFactory:
     @staticmethod
