@@ -251,3 +251,9 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Observation:** Gamla monolitiska integrationstester ersatta med modulär svit ().
 **Beslut / Förslag:** Bättre feldiagnostik vid backend-byte (MMS/Silero/Piper).
 **Action:** Delat upp i api-layer, tts-backends och full-chain.
+
+### [2026-04-19 21:00] [SCRUM MASTER] → [TEAM]
+**Status:** Sprint 7 Planering (Teknisk optimering).
+**Observation:** Kodgranskning identifierade kritiska områden för produktionifiering.
+**Beslut / Förslag:** Vi skapar dedikerade tickets för att adressera teknisk skuld innan vi expanderar Fish Speech.
+**Action:** Fastställt backlog för Sprint 7.

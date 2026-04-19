@@ -70,3 +70,9 @@
 
 ## [2026-04-19] Sprint 6: Test-refaktorering
 - [x] **Refaktorering av integrationstester:** Modulär testsvit () ersätter .
+
+## Sprint 7 Backlog: Teknisk Optimering & Professionalisering
+- [ ] **Ticket #14: Test-optimering (Fixtures & Conftest).** Implementera 'tests/conftest.py' för att dela modell-instanser mellan tester och dramatiskt öka testfarten.
+- [ ] **Ticket #15: Dynamisk Loader-arkitektur.** Refaktorera 'TTSLoaderFactory' till att använda 'importlib' för att undvika "monolit-imports" i 'main.py'.
+- [ ] **Ticket #16: Dokumentationsuppdatering.** Dokumentera nödvändiga systembibliotek (portaudio, ffmpeg) i 'HARDWARE.md' för att underlätta framtida miljöuppsättningar.
+- [ ] **Ticket #17: Refaktorering av FFmpeg-pipeline.** Byta ut 'subprocess.Popen' i 'main.py' mot en stabilare lösning (t.ex. 'ffmpeg-python' eller förbättrad felhantering).
