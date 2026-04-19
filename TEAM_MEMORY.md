@@ -49,3 +49,8 @@
 
 ## [2026-04-19] Beslut: Fokus Sprint 5
 - [ ] **Ticket #12: Pilot Piper.** Integrera Piper som tredje alternativ i TTSLoaderFactory.
+
+## Långsiktig Projektplan (Reviderad)
+1. **Pilot: Piper TTS (Sprint 5)** - Snabb, GPU-vänlig, låg latens.
+2. **High-Fidelity Motor (Sprint 6-7)** - Utvärdering av XTTS v2 eller VITS-baserade modeller med "Radio-kvalitet".
+3. **Produktionsstabilitet (Sprint 8)** - Caching-lager, API-optimering för streaming och flertrådad inferens.
