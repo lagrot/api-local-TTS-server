@@ -326,3 +326,9 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Observation:** Användaren har klargjort att latens är sekundärt. "Minuter kan accepteras" för att nå högsta röstkvalitet.
 **Beslut / Förslag:** Vi siktar på den tyngsta och mest kapabla konfigurationen av Fish Speech (Full Llama + High-bitrate DAC).
 **Action:** Inleder nedladdning av Fish Speech v1.4 "Full" vikter.
+### [2026-04-20 02:30] [LEAD ENGINEER] → [TEAM]
+**Status:** Sprint 6 konsolidering.
+**Observation:** Piper-backend helt borttagen. Fish Speech-inferens nu fullt operativ och verifierad.
+**Beslut / Förslag:** Kodbasen är nu optimerad för Fish Speech.
+**Action:** Committade ändringar och städade modell-bibliotek.
+**Nästa steg:** Påbörja Ticket #22 (Röstprofil-hantering).
