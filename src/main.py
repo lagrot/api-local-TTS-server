@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -49,11 +50,14 @@ async def chat(request: ChatRequest):
     return await generate_audio(text_response)
 
 
+import asyncio
+
+# ... (rest of imports)
+
 async def generate_audio(text: str):
     try:
         audio = loader.generate(text)
 
-        # Normalize to int16 if necessary
         if audio.dtype == "float32":
             audio = (audio * 32767).astype("int16")
 
@@ -61,41 +65,40 @@ async def generate_audio(text: str):
         sr = loader.sampling_rate
         wavfile.write(wav_buffer, sr, audio)
         wav_buffer.seek(0)
+        wav_data = wav_buffer.read()
 
-        process = subprocess.Popen(
-            [
-                "ffmpeg",
-                "-y",
-                "-i",
-                "pipe:0",
-                "-f",
-                "mp3",
-                "-ab",
-                "320k",
-                "-ar",
-                "48000",
-                "-af",
-                "aresample=48000:resampler=soxr,compand=attacks=0.01:points=-80/-900|-45/-15|-27/-9|0/-7|20/-5:gain=6",
-                "pipe:1",
-            ],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+        # Asynkron FFmpeg-process
+        process = await asyncio.create_subprocess_exec(
+            "ffmpeg",
+            "-y",
+            "-i", "pipe:0",
+            "-f", "mp3",
+            "-ab", "320k",
+            "-ar", "48000",
+            "-af", "aresample=48000:resampler=soxr,compand=attacks=0.01:points=-80/-900|-45/-15|-27/-9|0/-7|20/-5:gain=6",
+            "pipe:1",
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
         )
 
-        def stream_generator():
+        async def stream_generator():
             try:
-                process.stdin.write(wav_buffer.read())
+                # Skicka data asynkront
+                process.stdin.write(wav_data)
+                await process.stdin.drain()
                 process.stdin.close()
+
+                # Läs output asynkront
                 while True:
-                    chunk = process.stdout.read(4096)
+                    chunk = await process.stdout.read(4096)
                     if not chunk:
                         break
                     yield chunk
-                process.wait()
+                await process.wait()
             finally:
-                if process.poll() is None:
-                    process.kill()
+                if process.returncode is None:
+                    process.terminate()
 
         return StreamingResponse(stream_generator(), media_type="audio/mpeg")
     except Exception as e:

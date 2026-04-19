@@ -1,0 +1,19 @@
+[project]
+name = "api-local-tts-clean"
+version = "0.1.0"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "transformers",
+    "scipy",
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "piper-tts",
+    "fish-speech",
+    "pyaudio",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

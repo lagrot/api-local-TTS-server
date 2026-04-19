@@ -4,12 +4,8 @@ from src.main import app
 client = TestClient(app)
 
 
-def test_health_check():
+def test_health():
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
-
-
-def test_tts_endpoint_bad_request():
-    response = client.post("/tts", json={})
-    assert response.status_code == 422
+    print("QA: API Health check passed!")

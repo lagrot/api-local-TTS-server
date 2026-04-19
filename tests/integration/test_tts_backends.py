@@ -1,10 +1,12 @@
 import pytest
-from src.tts_engine import TTSLoaderFactory
 
-
-@pytest.mark.parametrize("backend", ["mms", "piper"])
-def test_backend_generation(backend):
-    loader = TTSLoaderFactory.get_loader(backend)
-    audio = loader.generate("Testar backend " + backend)
+def test_backend_mms(mms_loader):
+    audio = mms_loader.generate("Testar mms")
     assert audio is not None
     assert audio.size > 0
+
+def test_backend_piper(piper_loader):
+    audio = piper_loader.generate("Testar piper")
+    assert audio is not None
+    assert audio.size > 0
+

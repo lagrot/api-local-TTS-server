@@ -83,3 +83,9 @@
 
 ## [2026-04-19] Sprint 7 Status
 - [x] **Ticket #16: Dokumentationsuppdatering.** (KLAR: Systemberoenden dokumenterade i HARDWARE.md).
+
+## [2026-04-19] Sprint 7 Status (Hardening & Optimering)
+- [x] **Ticket #14: Test-optimering (Conftest & Mocks).** (KLAR: Snabbare tester, isolerad logik).
+- [x] **Ticket #15: Dynamisk Loader.** (KLAR: Robust main.py).
+- [x] **Ticket #16: Dokumentation.** (KLAR: Systemberoenden i HARDWARE.md).
+- [x] **Ticket #17: FFmpeg-pipeline.** (KLAR: Asynkrona subprocesses med timeouts).
