@@ -76,3 +76,7 @@
 - [ ] **Ticket #15: Dynamisk Loader-arkitektur.** Refaktorera 'TTSLoaderFactory' till att använda 'importlib' för att undvika "monolit-imports" i 'main.py'.
 - [ ] **Ticket #16: Dokumentationsuppdatering.** Dokumentera nödvändiga systembibliotek (portaudio, ffmpeg) i 'HARDWARE.md' för att underlätta framtida miljöuppsättningar.
 - [ ] **Ticket #17: Refaktorering av FFmpeg-pipeline.** Byta ut 'subprocess.Popen' i 'main.py' mot en stabilare lösning (t.ex. 'ffmpeg-python' eller förbättrad felhantering).
+
+## [2026-04-19] Sprint 7 Status
+- [x] **Ticket #14: Test-optimering.** (KLAR: conftest.py införd, snabbare testkörning).
+- [x] **Ticket #15: Dynamisk Loader-arkitektur.** (KLAR: main.py refaktorerad för dynamisk init).

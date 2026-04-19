@@ -257,3 +257,10 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Observation:** Kodgranskning identifierade kritiska områden för produktionifiering.
 **Beslut / Förslag:** Vi skapar dedikerade tickets för att adressera teknisk skuld innan vi expanderar Fish Speech.
 **Action:** Fastställt backlog för Sprint 7.
+
+### [2026-04-19 22:00] [LEAD ENGINEER] → [ALLA]
+**Status:** Ticket #15 (Dynamisk Loader-arkitektur) genomförd.
+**Observation:** main.py initierar nu loaders med felhantering och dynamisk laddning.
+**Beslut / Förslag:** Sprint 7 fortsätter.
+**Action:** Committade kod: 'refactor(main): implement dynamic tts loader initialization'.
+**Nästa steg:** Påbörja #16 (Dokumentation).
