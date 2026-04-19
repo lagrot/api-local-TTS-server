@@ -1,0 +1,20 @@
+             Searching for package file structure from directories with __init__.py files
+             Importing from /home/count/git/api-local-TTS-server
+ 
+    module   📁 src            
+             ├── 🐍 __init__.py
+             └── 🐍 main.py    
+ 
+      code   Importing the FastAPI app object from the module with the following code:
+ 
+             from src.main import app
+ 
+       app   Using import string: src.main:app
+ 
+    server   Server started at http://0.0.0.0:8000
+    server   Documentation at http://0.0.0.0:8000/docs
+ 
+             Logs:
+ 
+      INFO   127.0.0.1:49830 - "POST /tts_direct HTTP/1.1" 200
+      INFO   127.0.0.1:39410 - "POST /tts_direct HTTP/1.1" 200
