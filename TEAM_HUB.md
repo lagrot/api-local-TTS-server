@@ -173,3 +173,10 @@
 **Observation:** Silero TTS integrerad via Factory-mönster. Både MMS och Silero stöds nu dynamiskt.
 **Beslut / Förslag:** Sprint 3 avslutad.
 **Action:** Committar implementation.
+
+### [2026-04-19 13:00] [SCRUM MASTER] → [TEAM]
+**Status:** Sprint 3 (Optimering & GPU) avslutad.
+**Observation:** Ticket #9 (ROCm) skjuten på framtiden pga miljöinstabilitet, Ticket #10 & #11 är klara och verifierade.
+**Beslut / Förslag:** Sprint 3 stängs. Vi fokuserar nästkommande sprint på stabilitet och dokumentation.
+**Action:** Uppdaterat TEAM_MEMORY.md och stängt Sprint 3.
+**Nästa steg:** Inled planering för Sprint 4.

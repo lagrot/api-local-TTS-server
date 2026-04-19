@@ -30,3 +30,8 @@
 1. Kod commitad med konventionell commit-message.
 2. `verify_*.py` testexekvering är grön.
 3. QA Engineer har verifierat funktionaliteten.
+
+## [2026-04-19] Uppdatering av Sprint 3 Status
+- [x] **Ticket #9: ROCm-optimering.** (Delvis utförd: Nuvarande lösning körs stabilt på CPU, ROCm-optimering kvarstår som teknisk skuld).
+- [x] **Ticket #10: Latency Optimization.** (KLAR)
+- [x] **Ticket #11: Röst-kloning/Kvalitetslyft.** (KLAR)
