@@ -95,3 +95,6 @@
 - [x] **Ticket #15: Dynamisk Loader.** (KLAR: robust main.py).
 - [x] **Ticket #16: Dokumentation.** (KLAR: HARDWARE.md).
 - [x] **Ticket #17: FFmpeg-pipeline.** (KLAR: Asynkron, timeout-skyddad, MP3-verifierad).
+
+## [2026-04-19] Rensa bort Silero
+- [x] **Ticket #18: Radera alla Silero-referenser.** (KLAR: Helt borttaget från src, tests och minne).
