@@ -197,3 +197,7 @@
 ## [2026-04-20] Ticket #37: Diagnostic (BLOCKERAD)
 - Diagnostik avbröts p.g.a. arkitektonisk inkompatibilitet mellan modell (Qwen) och bibliotek (Llama-stöd).
 - Beslut: Vi behöver en modell som matchar bibliotekets arkitektur eller en uppgradering av biblioteket.
+
+## [2026-04-20] Infrastruktur: Modelluppgradering
+- Raderade inkompatibel Qwen-modell (fish-speech-s2-pro).
+- Förberett för stabil modell v1.2 (Llama-baserad) för att återställa svensk röstkvalitet.
