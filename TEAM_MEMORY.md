@@ -177,3 +177,10 @@
 ## [2026-04-20] Ticket #34: Timing-decorator (KLAR)
 - Implementerat 'src/utils.py' med 'time_it'-decorator.
 - Dekorerat 'FishSpeechLoader.generate' för att logga exakt inferens-tid i millisekunder.
+
+## [2026-04-20] Sprint 8 & 9.1: Stabilisering & Prestanda-baselines (KLAR)
+- Fullständig miljörensning och låsning av ROCm-beroenden.
+- Implementerat automatiserad pre-flight check för GPU-stabilitet.
+- Röstprofil-optimering (Fanny-profil) för låg latens.
+- Etablerat professionell team-struktur med dedikerade sub-agents.
+- Systemet är nu i ett stabilt, GPU-accelererat produktionsläge.
