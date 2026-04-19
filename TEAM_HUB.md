@@ -187,3 +187,23 @@
 **Beslut / Förslag:** Vi återöppnar Ticket #9 (ROCm-optimering) som högsta prioritet i Sprint 4.
 **Action:** Lead Engineer utreder specifika ROCm/PyTorch-konfigurationer för RX 6700 XT.
 **Nästa steg:** Påbörja undersökning av ROCm-versioner och PyTorch-builds.
+
+### [2026-04-19 14:00] [SCRUM MASTER] → [TEAM]
+**Status:** Nedbrytning av Ticket #9 (ROCm) för Sprint 4.
+**Observation:** Ticket #9 är för komplex att hantera som en enda uppgift.
+**Beslut / Förslag:** Vi bryter ner Ticket #9 i mindre, verifierbara delmål (Sub-tickets).
+**Action:** Fastställt följande sub-tickets:
+1. **#9.1: Miljöanalys.** Verifiera ROCm-installation, drivrutiner och 
+
+======================================== ROCm System Management Interface ========================================
+================================================== Concise Info ==================================================
+Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK   Fan  Perf  PwrCap  VRAM%  GPU%  
+[3m              (DID,     GUID)  (Edge)  (Avg)  (Mem, Compute, ID)                                                 [0m
+==================================================================================================================
+0       1     0x73df,   40035  38.0°C  7.0W   N/A, N/A, 0         500Mhz  96Mhz  0%   auto  203.0W  16%    0%    
+==================================================================================================================
+============================================== End of ROCm SMI Log =============================================== status.
+2. **#9.2: PyTorch-kompatibilitet.** Säkerställa att installerad PyTorch stöder vår specifika ROCm-version.
+3. **#9.3: Isolationstest.** Skapa ett minimalt testskript som endast anropar GPU-tensorer (utan komplexa modeller).
+4. **#9.4: Integrationsvalidering.** Verifiera hela pipelinen med GPU-stöd.
+**Nästa steg:** Påbörja #9.1 (Miljöanalys).
