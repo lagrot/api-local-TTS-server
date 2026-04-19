@@ -27,41 +27,12 @@ class MMSLoader(BaseTTSLoader):
         return output.waveform[0].cpu().numpy()
 
 
+from src.utils import time_it
+
 class FishSpeechLoader(BaseTTSLoader):
-    def __init__(self, model_dir="models/fish-speech-s2-pro"):
-        super().__init__()
-        self.model_dir = model_dir
-        self.sampling_rate = 44100
-        
-        logger.info("Initializing Fish Speech S2 Pro using FishSpeechWrapper...")
-        from src.fish_wrapper import FishSpeechWrapper
-        
-        self.wrapper = FishSpeechWrapper(model_dir, device=self.device)
-        
-        from fish_speech.models.dac.inference import load_model
-        codec_path = os.path.join(model_dir, "codec.pth")
-        self.dac_model = load_model("modded_dac_vq", codec_path, device="cpu")
-        self.dac_model.eval()
-        
-        logger.info(f" {self.__class__.__name__} initialized on {self.device}")
+    # ... (behåll befintlig kod för __init__ och get_reference_tokens)
 
-    def get_reference_tokens(self, audio_path):
-        import soundfile as sf
-        from torchaudio.functional import resample
-        wav, sr = sf.read(audio_path)
-        wav = torch.from_numpy(wav).float().to("cpu")
-        if wav.ndim > 1:
-            wav = wav.mean(dim=-1)
-        wav = resample(wav, sr, self.dac_model.sample_rate)
-        
-        model_dtype = next(self.dac_model.parameters()).dtype
-        audios = wav[None, None].to(dtype=model_dtype)
-        audio_lengths = torch.tensor([len(wav)], device="cpu", dtype=torch.long)
-        
-        with torch.no_grad():
-            indices, feature_lengths = self.dac_model.encode(audios, audio_lengths)
-        return indices[0, :, : feature_lengths[0]]
-
+    @time_it
     def generate(self, text, reference_audio=None, reference_text=None, **kwargs):
         prompt_tokens = None
         
