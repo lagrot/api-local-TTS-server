@@ -38,3 +38,6 @@
 
 ## [2026-04-19] Beslut: Fokus Sprint 4
 - [ ] **Ticket #9: Återöppnad - ROCm-optimering.** Prioriterad för att nå målet om GPU-acceleration på AMD-hårdvara.
+
+## [2026-04-19] Sprint 4 Slutrapport
+- [x] **Ticket #9: ROCm-optimering.** (Avslutad: GPU-stöd verifierat på drivrutinsnivå, men MMS-inferens är instabil på GPU. CPU-körning är nuvarande standard).

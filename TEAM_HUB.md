@@ -207,3 +207,10 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 3. **#9.3: Isolationstest.** Skapa ett minimalt testskript som endast anropar GPU-tensorer (utan komplexa modeller).
 4. **#9.4: Integrationsvalidering.** Verifiera hela pipelinen med GPU-stöd.
 **Nästa steg:** Påbörja #9.1 (Miljöanalys).
+
+### [2026-04-19 15:00] [LEAD ENGINEER] → [ALLA]
+**Status:** Ticket #9 (ROCm-optimering) för MMS/TTS avslutad med CPU-fallout.
+**Observation:** Trots att ROCm 7.2.1 detekterar GPU korrekt, orsakar MMS-modellen Segmentation fault vid GPU-inferens.
+**Beslut / Förslag:** Vi behåller CPU-körning för stabilitet (KISS-principen). GPU-optimering markeras som teknisk skuld.
+**Action:** Återställt MMSLoader till CPU. Stänger Sprint 4.
+**Nästa steg:** Inga ytterligare åtgärder för GPU-optimering i detta skede.
