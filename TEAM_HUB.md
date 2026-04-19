@@ -332,3 +332,9 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Beslut / Förslag:** Kodbasen är nu optimerad för Fish Speech.
 **Action:** Committade ändringar och städade modell-bibliotek.
 **Nästa steg:** Påbörja Ticket #22 (Röstprofil-hantering).
+### [2026-04-20 03:00] [LEAD ENGINEER] → [TEAM]
+**Status:** Test-migration slutförd.
+**Observation:** Benchmark- och inferensskript flyttade till tests/integration/benchmarks/.
+**Beslut / Förslag:** Kodbasen är nu städad och alla tester är nu en del av testsviten.
+**Action:** Committade flytt av testfiler.
+**Nästa steg:** Påbörja Ticket #22 (Röstprofil-hantering).
