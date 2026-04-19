@@ -129,3 +129,8 @@
 - [2026-04-20] Använd soundfile + torchaudio.functional.resample istället för torchaudio.load för att undvika torchcodec-beroendet.
 **[SYSTEM_MEMORY_UPDATE]**
 - [2026-04-20] Conftest.py tvingar nu  för att förhindra GPU-minneskrascher under testkörning.
+
+## [2026-04-20] GPU-status (Experimentell)
+- GPU-support via ROCm (RX 6700 XT) är verifierad och fungerande, men kräver `HSA_OVERRIDE_GFX_VERSION=10.3.0`.
+- Betraktas som experimentell: Segmentation faults kan förekomma vid hög belastning.
+- Testsviten körs som standard på CPU för att garantera stabilitet i CI-miljö.
