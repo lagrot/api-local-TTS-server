@@ -161,3 +161,7 @@
 ## [2026-04-20] Ticket #26: API-Integration (KLAR)
 - Uppdaterat '/chat'-endpointen med stöd för 'reference_audio' och 'reference_text'.
 - Säkerställt att parametrar skickas korrekt genom till 'generate_audio'-pipelinen.
+
+## [2026-04-20] Ticket #27 & #29: Dokumentation & Lean-städning (KLAR)
+- Verifierat att 'librosa' är borttaget.
+- Uppdaterat 'README.md' och 'HARDWARE.md' för att reflektera den moderna Fish Speech (S2 Pro) arkitekturen och pre-flight kontroller.
