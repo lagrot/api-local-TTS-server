@@ -1,9 +1,11 @@
 import pytest
+import pytest
 from fastapi.testclient import TestClient
 from src.main import app
 
 client = TestClient(app)
 
+@pytest.mark.slow
 def test_long_text_stress():
     # Skicka en text som är tillräckligt lång för att testa pipeline-stabilitet
     long_text = "Detta är ett stresstest. " * 50
