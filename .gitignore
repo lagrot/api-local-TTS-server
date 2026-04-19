@@ -14,3 +14,10 @@ __pycache__/
 audio_out/
 models/
 *.egg-info/
+
+# ML/AI Models & Large Wheels
+*.onnx
+*.onnx.json
+*.whl
+models/
+.env

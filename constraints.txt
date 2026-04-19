@@ -1,0 +1,8 @@
+# Blockera alla NVIDIA-specifika bibliotek
+nvidia-cudnn-cu13==0
+nvidia-cublas==0
+nvidia-cusparse==0
+# Tvinga rätt versioner (vi har redan installerat dessa manuellt)
+torch==2.9.1+rocm7.2.1
+torchaudio==2.9.0+rocm7.2.1
+torchvision==0.24.0+rocm7.2.1
