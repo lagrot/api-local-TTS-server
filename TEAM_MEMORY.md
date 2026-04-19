@@ -184,3 +184,8 @@
 - Röstprofil-optimering (Fanny-profil) för låg latens.
 - Etablerat professionell team-struktur med dedikerade sub-agents.
 - Systemet är nu i ett stabilt, GPU-accelererat produktionsläge.
+
+## [2026-04-20] Ticket #35 & #36: Observability & Baseline (KLAR)
+- Implementerat strukturerad JSON-loggning i 'main.py' för bättre spårbarhet.
+- Upprättat 'prestanda_baseline.txt' med första inferens-tiderna för Fanny-profilen.
+- Sprint 9.2 är nu officiellt avslutad.
