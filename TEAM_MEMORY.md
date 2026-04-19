@@ -57,3 +57,10 @@
 
 ## [2026-04-19] Sprint 5 Slutrapport
 - [x] **Ticket #12: Pilot Piper.** (KLAR: Integrerad via TTSLoaderFactory, verifierad med svensk röst).
+
+## [2026-04-19] Sprint 6 Planering (High Fidelity)
+- [ ] **Ticket #13: Implementera High-Fidelity Motor (Radio Quality).**
+  - #13.1: Modellutvärdering (XTTS v2).
+  - #13.2: Engine-implementation (XTTSLoader).
+  - #13.3: Kvalitetstuning.
+  - #13.4: Prestanda-benchmarking.

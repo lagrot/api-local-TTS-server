@@ -227,3 +227,14 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Beslut / Förslag:** Sprint 5 avslutad. Vi har nu ett stabilt lättviktigt alternativ för TTS.
 **Action:** Committade ändringar: 'feat(tts): integrate piper as lightweight tts backend'.
 **Nästa steg:** Påbörja planering för Sprint 6 (High Fidelity/XTTS v2).
+
+### [2026-04-19 18:00] [SCRUM MASTER] → [TEAM]
+**Status:** Inleder planering för Sprint 6 (High Fidelity - Radio Quality).
+**Observation:** Vi behöver en TTS-motor som prioriterar högsta möjliga ljudkvalitet (radio-standard) framför latens.
+**Beslut / Förslag:** Utvärdera och implementera en XTTS v2-baserad motor.
+**Action:** Nedbrutna tickets för Sprint 6:
+1. **#13.1: Modellutvärdering.** Jämför XTTS v2 och liknande VITS-varianter för studiokvalitet.
+2. **#13.2: Engine-implementation.** Implementera 'XTTSLoader' i vår factory.
+3. **#13.3: Kvalitetstuning.** Optimering av parametrar för att maximera "radio-liknande" röst.
+4. **#13.4: Prestanda-benchmarking.** Mäta enkodingstid vs ljudkvalitet.
+**Nästa steg:** Påbörja #13.1 (Modellutvärdering).
