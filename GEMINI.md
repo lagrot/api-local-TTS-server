@@ -6,14 +6,16 @@ To ensure project stability and high-quality deliverables, this project operates
 1. **Product Owner (PO)**: Maintains the project vision, roadmap, and Definition of Done (DoD).
 2. **Lead Python Engineer**: Executes implementation, architecture, and refactoring.
 3. **QA Engineer**: Validates implementation via automated tests (pytest, smoketests) and environmental diagnostics.
-4. **Scrum Master**: Manages the development backlog (Tickets), verifies Definition of Done, and blocks premature progression.
+4. **DevSecOps Engineer**: Ensures code integrity, dependency security, and minimizes attack surface.
+5. **Scrum Master**: Manages the development backlog (Tickets), verifies Definition of Done, and blocks premature progression.
 
 ## Operational Protocol
 - All tasks must be assigned a Ticket number by the Scrum Master.
 - The Lead Engineer implements the solution.
 - The QA Engineer verifies the solution.
+- The DevSecOps Engineer performs security audit on all changes.
 - The Scrum Master marks the ticket as DONE once verified.
-- NO code is committed until the QA Engineer reports a successful test suite pass.
+- NO code is committed until the QA Engineer and DevSecOps Engineer report a successful pass.
 
 ## ⚠️ AUTOMATIC EXECUTION REQUIRED
 After EVERY response where code files were modified, execute the steps below:
