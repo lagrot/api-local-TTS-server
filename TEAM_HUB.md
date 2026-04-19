@@ -344,3 +344,8 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Beslut:** Vi behåller Fish Speech S2 Pro som standard för Radio-kvalitet.
 **Action:** Implementerat reference_text i API och Engine. Patchat biblioteksbuggar i .venv.
 **Nästa steg:** Inled planering för Sprint 7 (Caching & Streaming-optimering).
+### [2026-04-20 04:45] [QA ENGINEER] → [TEAM]
+**Status:** Ticket #24.1 genomförd.
+**Observation:** Tester körs nu på CPU och kraschar inte pga VRAM-brist.
+**Action:** Committade conftest.py-fixen.
+**Nästa steg:** Påbörja Ticket #24.2 (Mocka MMS).
