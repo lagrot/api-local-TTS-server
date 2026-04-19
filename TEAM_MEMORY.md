@@ -120,3 +120,9 @@
 - [ ] **Ticket #21: FishSpeechLoader Skarp Implementation.**
 - [ ] **Ticket #22: Tonalitet & Röstkloning (Reference support).**
 - [ ] **Ticket #23: Radio Quality Benchmark.**
+**[SYSTEM_MEMORY_UPDATE]**
+- [2026-04-20] Patchar i fish-speech (inference.py):
+  1. Rad 554: Ändrat 'if prompt_tokens:' till 'if prompt_tokens is not None:'
+  2. Rad 544: Ändrat 'bool(prompt_tokens)' till 'prompt_tokens is not None'
+- [2026-04-20] Röstkloning kräver både .wav och transkription (reference_text) för optimal svensk tonalitet.
+- [2026-04-20] Använd soundfile + torchaudio.functional.resample istället för torchaudio.load för att undvika torchcodec-beroendet.
