@@ -189,3 +189,7 @@
 - Implementerat strukturerad JSON-loggning i 'main.py' för bättre spårbarhet.
 - Upprättat 'prestanda_baseline.txt' med första inferens-tiderna för Fanny-profilen.
 - Sprint 9.2 är nu officiellt avslutad.
+
+## [2026-04-20] Infrastruktur-städning: Egg-info eliminerad (KLAR)
+- Rensat bort redundanta '.egg-info'-mappar från 'src/' och root.
+- Bekräftat att projektet nu följer en ren arkitektur utan bygg-artefakter i källkoden.
