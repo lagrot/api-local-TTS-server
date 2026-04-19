@@ -64,7 +64,14 @@ class FishSpeechLoader(BaseTTSLoader):
 
     def generate(self, text, reference_audio=None, reference_text=None, **kwargs):
         prompt_tokens = None
-        if reference_audio and os.path.exists(reference_audio):
+        
+        # Ny logik för Fanny-profil
+        if reference_audio == "fanny":
+            profile_path = "audio_in/fanny.pt"
+            if os.path.exists(profile_path):
+                logger.info("Loading pre-computed Fanny profile...")
+                prompt_tokens = torch.load(profile_path, map_location="cpu")
+        elif reference_audio and os.path.exists(reference_audio):
             prompt_tokens = self.get_reference_tokens(reference_audio)
         
         with torch.no_grad():
