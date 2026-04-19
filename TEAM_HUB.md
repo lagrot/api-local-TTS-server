@@ -220,3 +220,10 @@ Device  Node  IDs              Temp    Power  Partitions          SCLK    MCLK  
 **Observation:** Teamet siktar på högre ljudkvalitet ("Radio-kvalitet"). Piper utvärderas som nästa steg för GPU-stabilitet.
 **Beslut / Förslag:** Vi skapar en långsiktig plan för att balansera "KISS" med "High Fidelity".
 **Action:** Fastställt långsiktig färdplan och startar Pilot: Piper.
+
+### [2026-04-19 17:30] [LEAD ENGINEER] → [ALLA]
+**Status:** Ticket #12 (Pilot: Piper) genomförd och verifierad.
+**Observation:** Piper TTS integrerad och testad med svensk röst. Fungerar stabilt via ONNX Runtime.
+**Beslut / Förslag:** Sprint 5 avslutad. Vi har nu ett stabilt lättviktigt alternativ för TTS.
+**Action:** Committade ändringar: 'feat(tts): integrate piper as lightweight tts backend'.
+**Nästa steg:** Påbörja planering för Sprint 6 (High Fidelity/XTTS v2).

@@ -54,3 +54,6 @@
 1. **Pilot: Piper TTS (Sprint 5)** - Snabb, GPU-vänlig, låg latens.
 2. **High-Fidelity Motor (Sprint 6-7)** - Utvärdering av XTTS v2 eller VITS-baserade modeller med "Radio-kvalitet".
 3. **Produktionsstabilitet (Sprint 8)** - Caching-lager, API-optimering för streaming och flertrådad inferens.
+
+## [2026-04-19] Sprint 5 Slutrapport
+- [x] **Ticket #12: Pilot Piper.** (KLAR: Integrerad via TTSLoaderFactory, verifierad med svensk röst).

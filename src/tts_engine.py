@@ -1,7 +1,6 @@
-import torch
 import os
-import io
-import torch.package
+import torch
+from piper import PiperVoice
 
 class BaseTTSLoader:
     def __init__(self):
@@ -38,6 +37,28 @@ class SileroTTSLoader(BaseTTSLoader):
     def generate(self, text, speaker='xenia', sample_rate=48000, **kwargs):
         return self.model.apply_tts(text=text, speaker=speaker, sample_rate=sample_rate).numpy()
 
+class PiperTTSLoader(BaseTTSLoader):
+    def __init__(self, model_path='sv_SE-nst-medium.onnx'):
+        super().__init__()
+        if not os.path.isfile(model_path):
+             raise FileNotFoundError(f"Piper modell saknas: {model_path}")
+        
+        self.voice = PiperVoice.load(model_path)
+
+    def generate(self, text, **kwargs):
+        import io
+        import wave
+        import scipy.io.wavfile as wavfile
+        import numpy as np
+        
+        wav_buffer = io.BytesIO()
+        with wave.open(wav_buffer, 'wb') as wav_file:
+            self.voice.synthesize_wav(text, wav_file)
+        
+        wav_buffer.seek(0)
+        sr, audio = wavfile.read(wav_buffer)
+        return audio.astype('float32') / 32767.0
+
 class TTSLoaderFactory:
     @staticmethod
     def get_loader(model_type="mms"):
@@ -45,5 +66,7 @@ class TTSLoaderFactory:
             return MMSLoader()
         elif model_type == "silero":
             return SileroTTSLoader()
+        elif model_type == "piper":
+            return PiperTTSLoader()
         else:
             raise ValueError(f"Unknown model type: {model_type}")
