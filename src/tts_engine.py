@@ -3,11 +3,14 @@ import os
 import torch
 import numpy as np
 
+from src.adapters import get_adapter
+
 logger = logging.getLogger(__name__)
+adapter = get_adapter()
 
 class BaseTTSLoader:
     def __init__(self):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = adapter.device
         logger.info(f" {self.__class__.__name__} körs på enhet: {self.device}")
 
 class MMSLoader(BaseTTSLoader):

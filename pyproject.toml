@@ -18,6 +18,7 @@ dependencies = [
     "triton",
     "torchvision",
     "ruff",
+    "torch-directml; sys_platform == 'win32'",
 ]
 
 [tool.uv]

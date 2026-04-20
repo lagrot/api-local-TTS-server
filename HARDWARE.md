@@ -2,8 +2,16 @@
 
 ## Hårdvarukrav
 - **GPU**: AMD Radeon RX 6700 XT.
-- **Drivrutiner**: ROCm 7.2.1.
-- **Miljövariabel**: Kräver `HSA_OVERRIDE_GFX_VERSION=10.3.0` för att mappas korrekt till GFX1030-arkitekturen.
+- **Drivrutiner (Linux)**: ROCm 7.2.1.
+- **Drivrutiner (Windows)**: AMD Software: Adrenalin Edition.
+
+## Platform Configuration
+### Linux
+- Kräver `HSA_OVERRIDE_GFX_VERSION=10.3.0` (sköts automatiskt av `LinuxAdapter`).
+
+### Windows
+- Använder `torch-directml` för acceleration på AMD-GPU:er.
+- Vid avsaknad av DirectML eller kompatibel GPU sker automatisk fallback till CPU.
 
 ## Pre-flight Check
 Servern kör en automatisk kontroll via `run_server.sh` vid start som verifierar:

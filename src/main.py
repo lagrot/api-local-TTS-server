@@ -9,12 +9,19 @@ from pydantic import BaseModel
 from src.tts_engine import TTSLoaderFactory
 from src.llm_engine import OllamaClient
 from src.audio_config import FFMPEG_PARAMS
+from src.adapters import get_adapter
 
 # Konfigurera logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("TTS-Server")
+
+# Initiera plattforms-adapter
+adapter = get_adapter()
+adapter.setup_env()
+gpu_info = adapter.get_gpu_info()
+logger.info(f"Platform: {gpu_info['platform']}, GPU Backend: {gpu_info['backend']}, Available: {gpu_info['available']}")
 
 app = FastAPI()
 
