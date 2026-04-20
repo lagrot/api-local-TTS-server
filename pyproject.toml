@@ -15,14 +15,14 @@ dependencies = [
     "pyaudio",
     "torch",
     "torchaudio",
-    "triton",
+    "triton; sys_platform == 'linux'",
     "torchvision",
     "ruff",
     "torch-directml; sys_platform == 'win32'",
 ]
 
 [tool.uv]
-sources = { torch = { path = "torch-2.9.1+rocm7.2.1.lw.gitff65f5bc-cp312-cp312-linux_x86_64.whl" }, torchaudio = { path = "torchaudio-2.9.0+rocm7.2.1.gite3c6ee2b-cp312-cp312-linux_x86_64.whl" }, torchvision = { path = "torchvision-0.24.0+rocm7.2.1.gitb919bd0c-cp312-cp312-linux_x86_64.whl" }, triton = { path = "triton-3.5.1+rocm7.2.1.gita272dfa8-cp312-cp312-linux_x86_64.whl" } }
+# Removed custom sources to allow cross-platform installation via pip/uv
 
 [build-system]
 requires = ["setuptools>=61.0"]

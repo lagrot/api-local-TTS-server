@@ -37,6 +37,12 @@ class FishSpeechLoader(BaseTTSLoader):
         self.model_dir = model_dir
         self.sampling_rate = 44100
         
+        try:
+            import triton
+            logger.info("Triton detected.")
+        except ImportError:
+            logger.warning("Triton not found, running in CPU/DirectML mode.")
+        
         logger.info(f"Initializing Fish Speech S2 Pro using native QwenInferenceEngine...")
         self.engine = QwenInferenceEngine(model_dir)
         
