@@ -1,31 +1,30 @@
-# setup-windows.ps1 - Idempotent Windows Environment Setup
+# setup-windows.ps1 - Idempotent Windows Environment Setup med uv
 $ErrorActionPreference = "Stop"
 
-Write-Host "--- Windows Environment Setup ---" -ForegroundColor Cyan
+Write-Host "--- Windows Environment Setup (uv) ---" -ForegroundColor Cyan
 
-# 1. Check Python
-if (!(Get-Command python -ErrorAction SilentlyContinue)) {
-    Write-Error "Python not found. Please install Python 3.12."
+# 1. Kontrollera om uv finns, installera annars
+if (!(Get-Command uv -ErrorAction SilentlyContinue)) {
+    Write-Host "uv saknas, installerar..."
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 }
 
-# 2. Create Venv
+# 2. Skapa venv och synka miljö
 if (!(Test-Path ".venv")) {
-    Write-Host "Creating virtual environment..."
-    python -m venv .venv
+    Write-Host "Skapar venv med uv..."
+    uv venv
 }
 
-# 3. Install Dependencies
-Write-Host "Installing dependencies..."
-& .\.venv\Scripts\pip install --upgrade pip
-& .\.venv\Scripts\pip install -r requirements.txt
-& .\.venv\Scripts\pip install torch-directml  # AMD Acceleration for Windows
+# 3. Synka beroenden från pyproject.toml
+Write-Host "Synkar beroenden..."
+uv sync
 
-# 4. Check GPU Drivers
-Write-Host "Checking for AMD Adrenaline Drivers..."
+# 4. Kontrollera GPU
+Write-Host "Kontrollerar AMD Adrenaline..."
 if (Get-WmiObject Win32_VideoController | Where-Object { $_.Name -match "AMD" }) {
-    Write-Host "AMD GPU detected." -ForegroundColor Green
+    Write-Host "AMD GPU detekterad." -ForegroundColor Green
 } else {
-    Write-Warning "No AMD GPU detected. System will run on CPU."
+    Write-Warning "Ingen AMD GPU detekterad. Kör på CPU."
 }
 
-Write-Host "Setup Complete. Run server with: .\venv\Scripts\fastapi run src\main.py" -ForegroundColor Green
+Write-Host "Setup Complete. Starta med: .\.venv\Scripts\fastapi run src\main.py" -ForegroundColor Green

@@ -16,7 +16,7 @@ Lokal AI-server för högkvalitativ TTS med Fish Speech (S2 Pro).
 
 ### Windows (DirectML / AMD GPU)
 1. **Miljökrav**: AMD Radeon GPU, Adrenaline drivrutiner.
-2. **Setup**: `powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1`.
+2. **Setup**: Kör `./scripts/setup-windows.ps1` i PowerShell.
 3. **Start**: `.\.venv\Scripts\fastapi run src\main.py`.
 4. **Test**: `curl -X POST http://localhost:8000/chat -H "Content-Type: application/json" -d '{"prompt": "Hej Fanny"}'`
 
